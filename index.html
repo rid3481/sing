@@ -1,138 +1,308 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026-27年度 歌唱大賽</title>
-    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-27年度 歌唱大賽</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #d0d7de;
+    --primary: #1f6feb; --primary-text: #fff; --ok: #1a7f37; --warn-bg: #fff8c5; --warn-line: #d4a72c;
+    --err: #cf222e; --chip: #eef1f4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  .wide { max-width: 1000px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 0 0 16px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 4px; }
+  label .opt { font-weight: 400; color: var(--muted); }
+  input[type=text], input[type=email], input[type=tel], input[type=number], select, textarea {
+    width: 100%; padding: 10px 12px; font: inherit; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text); }
+  textarea { min-height: 64px; resize: vertical; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 11px 18px; cursor: pointer;
+    background: var(--primary); color: var(--primary-text); }
+  button.ghost { background: var(--chip); color: var(--text); }
+  button:disabled { opacity: .5; cursor: default; }
+  .full { width: 100%; margin-top: 20px; }
+  .msg { margin-top: 14px; font-weight: 600; }
+  .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
+  .notice { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 8px; }
+  .chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 13px; margin-right: 6px; }
+  .thumb { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; background: var(--chip); display: block; }
+  .pick { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .links a { font-size: 14px; margin-right: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .bar .grow { flex: 1; }
+  .entry { display: grid; grid-template-columns: 96px 1fr; gap: 16px; }
+  @media (max-width: 520px) { .entry { grid-template-columns: 1fr; } }
+  .scores { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px 12px; }
+  .scores label { margin-top: 8px; }
+  .done { border-left: 4px solid var(--ok); }
+  .total { font-weight: 700; }
+  .hidden { display: none !important; }
+</style>
 </head>
-<body class="bg-gray-100">
-    <div id="root"></div>
+<body>
+<div id="app" class="wrap"><p class="sub">載入中…</p></div>
 
-    <script type="text/babel">
-        // 已替換為您專屬的 API URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbxTb7mtf9UXcX3gfHW1LIrkafkoZcu3lhQQSV7kgLGntjnoJ7O6o6FE79O7G5c9yu0/exec";
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
+const MAX_AUDIO_MB = 25;
 
-        function App() {
-            const [email, setEmail] = React.useState('');
-            const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-            const [formData, setFormData] = React.useState({
-                club: '', name: '', song: '', photoBase64: '', photoName: '', audioBase64: '', audioName: ''
-            });
-            const [status, setStatus] = React.useState('');
-            const [submitting, setSubmitting] = React.useState(false);
+const app = document.getElementById('app');
+let cfg = null;
 
-            const update = (fields) => setFormData(prev => ({ ...prev, ...fields }));
+async function api(action, payload = {}) {
+  let res;
+  try {
+    res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
+  } catch (e) {
+    throw new Error('連線失敗，請檢查網路後再試一次');
+  }
+  const data = await res.json().catch(() => { throw new Error('伺服器回應異常，請稍後再試'); });
+  if (data.status !== 'success') throw new Error(data.message || '發生錯誤');
+  return data;
+}
 
-            const handleLogin = (e) => {
-                e.preventDefault();
-                if (email.includes('@')) setIsLoggedIn(true);
-            };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const thumbUrl = id => id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w300` : '';
+function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg ' + (kind || ''); }
 
-            const handleFile = (e, type) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    if (type === 'photo') {
-                        update({ photoBase64: event.target.result, photoName: file.name });
-                    } else {
-                        update({ audioBase64: event.target.result, audioName: file.name });
-                    }
-                };
-                reader.readAsDataURL(file);
-            };
+function header(extra = '') {
+  return `<h1>2026-27年度 歌唱大賽</h1><p class="sub">${cfg && cfg.stage ? '目前賽程：' + esc(cfg.stage) : ''}${extra}</p>`;
+}
 
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                if (!formData.photoBase64) {
-                    setStatus('照片仍在讀取中，請稍候再送出。');
-                    return;
-                }
-                setSubmitting(true);
-                setStatus('上傳中，請稍候...');
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'submitApplication', email, ...formData })
-                    });
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        setStatus('報名成功！檔案已儲存。');
-                    } else {
-                        setStatus('報名失敗：' + result.message);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    setStatus('網路錯誤或跨域設定問題，請檢查主控台。');
-                } finally {
-                    setSubmitting(false);
-                }
-            };
+// ---------- 參賽者 ----------
 
-            if (!isLoggedIn) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center px-4">
-                        <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-                            <h2 className="text-2xl font-bold mb-6 text-center">歌唱大賽系統登入</h2>
-                            <form onSubmit={handleLogin}>
-                                <input type="email" placeholder="請輸入註冊 Email" required
-                                       className="w-full border p-2 mb-4 rounded"
-                                       value={email} onChange={(e) => setEmail(e.target.value)} />
-                                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-bold hover:bg-blue-700">登入 / 註冊</button>
-                            </form>
-                        </div>
-                    </div>
-                );
-            }
+function renderLogin(prefill = '') {
+  const emailOnly = cfg.loginMode === '僅Email';
+  app.className = 'wrap';
+  app.innerHTML = header() + `
+    <div class="card">
+      <h2>參賽者登入</h2>
+      <form id="f">
+        <label>${emailOnly ? 'Email' : '本名或 Email'}</label>
+        <input id="key" type="${emailOnly ? 'email' : 'text'}" required autocomplete="username"
+          placeholder="${emailOnly ? '請輸入報名時的 Email' : '已在名單上可輸入本名；新報名請輸入 Email'}" value="${esc(prefill)}">
+        <button class="full" id="go">登入</button>
+        <p class="msg" id="m"></p>
+      </form>
+    </div>`;
+  const m = document.getElementById('m'), go = document.getElementById('go');
+  document.getElementById('f').onsubmit = async e => {
+    e.preventDefault();
+    const key = document.getElementById('key').value.trim();
+    go.disabled = true; setMsg(m, '查詢中…');
+    try {
+      const r = await api('login', { key });
+      if (r.isNew) {
+        if (!cfg.regOpen) throw new Error('名單上沒有這個 Email，且目前已截止報名');
+        return renderForm({ Email: key }, true);
+      }
+      if (r.entries.length === 1) return renderForm(r.entries[0]);
+      renderPick(r.entries);
+    } catch (err) { setMsg(m, err.message, 'err'); go.disabled = false; }
+  };
+}
 
-            return (
-                <div className="container mx-auto p-4 sm:p-8 max-w-2xl">
-                    <div className="bg-white p-8 rounded shadow-md">
-                        <h2 className="text-2xl font-bold mb-6">參賽者報名表</h2>
-                        <p className="mb-4 text-gray-600">登入帳號：{email}</p>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block font-bold mb-1">所屬社名</label>
-                                <input type="text" required className="w-full border p-2 rounded"
-                                       onChange={(e) => update({ club: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block font-bold mb-1">本名</label>
-                                <input type="text" required className="w-full border p-2 rounded"
-                                       onChange={(e) => update({ name: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block font-bold mb-1">初賽曲目</label>
-                                <input type="text" required className="w-full border p-2 rounded"
-                                       onChange={(e) => update({ song: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block font-bold mb-1">照片上傳</label>
-                                <input type="file" accept="image/*" required className="w-full"
-                                       onChange={(e) => handleFile(e, 'photo')} />
-                            </div>
-                            <div>
-                                <label className="block font-bold mb-1">音檔/伴唱帶上傳 (可選)</label>
-                                <input type="file" accept="audio/*" className="w-full"
-                                       onChange={(e) => handleFile(e, 'audio')} />
-                            </div>
-                            <button type="submit" disabled={submitting}
-                                    className="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700 disabled:opacity-50">
-                                {submitting ? '上傳中...' : '送出報名'}
-                            </button>
-                            {status && <p className="mt-4 font-bold text-center text-red-600">{status}</p>}
-                        </form>
-                    </div>
-                </div>
-            );
-        }
+function renderPick(entries) {
+  app.innerHTML = header() + `<div class="card"><h2>找到 ${entries.length} 筆報名，請選擇</h2>
+    ${entries.map((x, i) => `<div class="pick card"><div><strong>${esc(x.id)}</strong> ${esc(x['社名'])}<br>
+      ${esc(x['歌手1本名'])}${x['歌手2本名'] ? '、' + esc(x['歌手2本名']) : ''}・${esc(x['歌名'] || '尚未提供曲目')}</div>
+      <button data-i="${i}">選擇</button></div>`).join('')}
+    <button class="ghost" id="back">返回</button></div>`;
+  app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => renderForm(entries[b.dataset.i]));
+  document.getElementById('back').onclick = () => renderLogin();
+}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+function clubOptions(selected) {
+  const zones = [];
+  cfg.clubs.forEach(c => { let z = zones.find(x => x.zone === c.zone); if (!z) zones.push(z = { zone: c.zone, clubs: [] }); z.clubs.push(c.club); });
+  return `<option value="">請選擇社名</option>` + zones.map(z =>
+    `<optgroup label="${esc(z.zone)}">${z.clubs.map(c => `<option${c === selected ? ' selected' : ''}>${esc(c)}</option>`).join('')}</optgroup>`).join('');
+}
+
+function renderForm(entry, isNew = false) {
+  const v = k => esc(entry[k] || '');
+  const missing = [];
+  if (!isNew) {
+    if (!entry['Email']) missing.push('Email（下週起只能用 Email 登入）');
+    if (!entry['歌名']) missing.push('初賽曲目');
+    if (!entry.photo) missing.push('照片');
+  }
+  app.className = 'wrap';
+  app.innerHTML = header() + `
+    <div class="card">
+      <h2>${isNew ? '新報名' : '報名資料　<span class="chip">' + esc(entry.id) + '</span><span class="chip">' + esc(entry.status) + '</span>'}</h2>
+      ${missing.length ? `<div class="notice">請補上：${missing.map(esc).join('、')}</div>` : ''}
+      <form id="f">
+        <label>所屬社名</label>
+        <select id="社名" required>${clubOptions(entry['社名'])}</select>
+        <div class="row2">
+          <div><label>歌手本名</label><input id="歌手1本名" type="text" required value="${v('歌手1本名')}"></div>
+          <div><label>稱謂 <span class="opt">選填</span></label><input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}"></div>
+          <div><label>合唱者本名 <span class="opt">選填</span></label><input id="歌手2本名" type="text" value="${v('歌手2本名')}"></div>
+          <div><label>合唱者稱謂 <span class="opt">選填</span></label><input id="歌手2稱謂" type="text" value="${v('歌手2稱謂')}"></div>
+          <div><label>初賽曲目</label><input id="歌名" type="text" value="${v('歌名')}"></div>
+          <div><label>原唱 <span class="opt">選填</span></label><input id="原唱" type="text" value="${v('原唱')}"></div>
+          <div><label>Email</label><input id="Email" type="email" required value="${v('Email')}"></div>
+          <div><label>電話 <span class="opt">選填</span></label><input id="電話" type="tel" value="${v('電話')}"></div>
+        </div>
+        <label>照片 ${entry.photo ? '<span class="opt">已上傳，重新選擇會取代</span>' : ''}</label>
+        ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="目前照片" style="margin-bottom:8px">` : ''}
+        <input id="photo" type="file" accept="image/*">
+        <label>音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
+        <input id="audio" type="file" accept="audio/*">
+        <button class="full" id="save">${isNew ? '送出報名' : '儲存'}</button>
+        <p class="msg" id="m"></p>
+      </form>
+    </div>
+    <button class="ghost" id="out">登出</button>`;
+
+  document.getElementById('out').onclick = () => renderLogin();
+  const m = document.getElementById('m'), save = document.getElementById('save');
+  document.getElementById('f').onsubmit = async e => {
+    e.preventDefault();
+    const data = {};
+    ['社名', '歌手1本名', '歌手1稱謂', '歌手2本名', '歌手2稱謂', '歌名', '原唱', 'Email', '電話']
+      .forEach(k => data[k] = document.getElementById(k).value.trim());
+    save.disabled = true;
+    try {
+      setMsg(m, '處理檔案中…');
+      const photoFile = document.getElementById('photo').files[0];
+      const audioFile = document.getElementById('audio').files[0];
+      if (audioFile && audioFile.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
+      const payload = { data };
+      if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
+      if (photoFile) payload.photo = await shrinkImage(photoFile);
+      if (audioFile) payload.audio = { name: audioFile.name, data: await readDataUrl(audioFile) };
+      setMsg(m, '上傳中，請稍候…');
+      const r = await api('save', payload);
+      renderForm(r.entry);
+      setMsg(document.getElementById('m'), isNew ? `報名成功！你的報名編號是 ${r.entry.id}` : '已儲存', 'ok');
+    } catch (err) { setMsg(m, err.message, 'err'); save.disabled = false; }
+  };
+}
+
+function readDataUrl(file) {
+  return new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(new Error('讀取檔案失敗')); r.readAsDataURL(file); });
+}
+
+// 照片縮到長邊 1600px 以內再上傳，避免手機原圖太大傳不上去。
+async function shrinkImage(file) {
+  const url = await readDataUrl(file);
+  const img = await new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => fail(new Error('無法讀取這張照片，請換一張')); i.src = url; });
+  const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return { name: file.name.replace(/\.[^.]+$/, '') + '.jpg', data: c.toDataURL('image/jpeg', 0.85) };
+}
+
+// ---------- 評審 ----------
+
+let judgeState = null;
+
+async function renderJudge(jt) {
+  app.className = 'wrap wide';
+  try {
+    judgeState = { jt, filter: 'todo', q: '', ...(await api('judge', { jt })) };
+  } catch (err) {
+    app.innerHTML = header() + `<div class="card"><p class="msg err">${esc(err.message)}</p></div>`;
+    return;
+  }
+  drawJudge();
+}
+
+function drawJudge() {
+  const s = judgeState;
+  const done = s.entries.filter(x => x.score).length;
+  const q = s.q.trim().toLowerCase();
+  const list = s.entries.filter(x =>
+    (s.filter === 'all' || (s.filter === 'done') === !!x.score) &&
+    (!q || [x.id, x.club, x.singers, x.song].join(' ').toLowerCase().includes(q)));
+  const crit = s.criteria;
+
+  app.innerHTML = header(`　評審：${esc(s.judge)}`) + `
+    <div class="bar">
+      <span class="chip">已評 ${done} / ${s.entries.length}</span>
+      <button class="${s.filter === 'todo' ? '' : 'ghost'}" data-f="todo">未評分</button>
+      <button class="${s.filter === 'done' ? '' : 'ghost'}" data-f="done">已評分</button>
+      <button class="${s.filter === 'all' ? '' : 'ghost'}" data-f="all">全部</button>
+      <input class="grow" id="q" type="text" placeholder="搜尋編號、社名、姓名、歌名" value="${esc(s.q)}">
+    </div>
+    ${crit.some(c => c.note) ? `<div class="card"><strong>評分項目</strong><br>${crit.map(c => `${esc(c.name)}（滿分 ${c.max}）${c.note ? '：' + esc(c.note) : ''}`).join('<br>')}</div>` : ''}
+    ${list.length ? '' : '<div class="card"><p class="sub" style="margin:0">這個分類沒有參賽者</p></div>'}
+    ${list.map(x => `
+      <div class="card ${x.score ? 'done' : ''}" data-id="${esc(x.id)}">
+        <div class="entry">
+          ${x.photoId ? `<img class="thumb" loading="lazy" src="${thumbUrl(x.photoId)}" alt="">` : '<div class="thumb"></div>'}
+          <div>
+            <div><span class="chip">${esc(x.id)}</span><span class="chip">${esc(x.zone)}</span>${esc(x.club)}</div>
+            <div style="font-size:18px;font-weight:700;margin:4px 0">${esc(x.singers)}</div>
+            <div>${esc(x.song || '尚未提供曲目')}${x.artist ? '　<span class="sub">原唱：' + esc(x.artist) + '</span>' : ''}</div>
+            ${x.audio ? `<div class="links"><a href="${esc(x.audio)}" target="_blank" rel="noopener">開啟音檔</a></div>` : ''}
+            <form class="sf">
+              <div class="scores">
+                ${crit.map(c => `<div><label>${esc(c.name)} <span class="opt">/ ${c.max}</span></label>
+                  <input type="number" inputmode="decimal" min="0" max="${c.max}" step="0.5" required name="${esc(c.name)}"
+                    value="${x.score && x.score.items[c.name] !== undefined && x.score.items[c.name] !== '' ? esc(x.score.items[c.name]) : ''}"></div>`).join('')}
+              </div>
+              <label>評語 <span class="opt">選填</span></label>
+              <textarea name="_comment">${esc(x.score ? x.score.comment : '')}</textarea>
+              <div class="bar" style="margin:12px 0 0">
+                <button>${x.score ? '更新分數' : '送出分數'}</button>
+                <span class="total">${x.score ? '總分 ' + esc(x.score.total) : ''}</span>
+                <span class="msg" style="margin:0"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>`).join('')}`;
+
+  app.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { s.filter = b.dataset.f; drawJudge(); });
+  const qi = document.getElementById('q');
+  qi.oninput = () => { s.q = qi.value; const pos = qi.selectionStart; drawJudge(); const n = document.getElementById('q'); n.focus(); n.setSelectionRange(pos, pos); };
+  app.querySelectorAll('form.sf').forEach(f => f.onsubmit = async e => {
+    e.preventDefault();
+    const card = f.closest('[data-id]'), id = card.dataset.id;
+    const btn = f.querySelector('button'), m = f.querySelector('.msg');
+    const items = {};
+    crit.forEach(c => items[c.name] = f.elements[c.name].value);
+    btn.disabled = true; setMsg(m, '儲存中…');
+    try {
+      const r = await api('score', { jt: s.jt, id, items, comment: f.elements._comment.value });
+      const x = s.entries.find(e => e.id === id);
+      x.score = { items, total: r.total, comment: f.elements._comment.value };
+      card.classList.add('done');
+      f.querySelector('.total').textContent = '總分 ' + r.total;
+      btn.textContent = '更新分數';
+      setMsg(m, '已儲存', 'ok');
+      app.querySelector('.bar .chip').textContent = `已評 ${s.entries.filter(e => e.score).length} / ${s.entries.length}`;
+    } catch (err) { setMsg(m, err.message, 'err'); }
+    btn.disabled = false;
+  });
+}
+
+// ---------- 啟動 ----------
+
+(async () => {
+  const jt = new URLSearchParams(location.search).get('judge');
+  try {
+    cfg = await api('config');
+  } catch (err) {
+    app.innerHTML = `<h1>2026-27年度 歌唱大賽</h1><div class="card"><p class="msg err">系統暫時無法連線：${esc(err.message)}</p></div>`;
+    return;
+  }
+  if (jt) renderJudge(jt); else renderLogin();
+})();
+</script>
 </body>
 </html>
