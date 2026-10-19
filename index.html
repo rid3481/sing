@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026-27年度 歌唱大賽</title>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // 已替換為您專屬的 API URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbxTb7mtf9UXcX3gfHW1LIrkafkoZcu3lhQQSV7kgLGntjnoJ7O6o6FE79O7G5c9yu0/exec";
+
+        function App() {
+            const [email, setEmail] = React.useState('');
+            const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+            const [formData, setFormData] = React.useState({
+                club: '', name: '', song: '', photoBase64: '', photoName: '', audioBase64: '', audioName: ''
+            });
+            const [status, setStatus] = React.useState('');
+            const [submitting, setSubmitting] = React.useState(false);
+
+            const update = (fields) => setFormData(prev => ({ ...prev, ...fields }));
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (email.includes('@')) setIsLoggedIn(true);
+            };
+
+            const handleFile = (e, type) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    if (type === 'photo') {
+                        update({ photoBase64: event.target.result, photoName: file.name });
+                    } else {
+                        update({ audioBase64: event.target.result, audioName: file.name });
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!formData.photoBase64) {
+                    setStatus('照片仍在讀取中，請稍候再送出。');
+                    return;
+                }
+                setSubmitting(true);
+                setStatus('上傳中，請稍候...');
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'submitApplication', email, ...formData })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        setStatus('報名成功！檔案已儲存。');
+                    } else {
+                        setStatus('報名失敗：' + result.message);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    setStatus('網路錯誤或跨域設定問題，請檢查主控台。');
+                } finally {
+                    setSubmitting(false);
+                }
+            };
+
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center px-4">
+                        <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
+                            <h2 className="text-2xl font-bold mb-6 text-center">歌唱大賽系統登入</h2>
+                            <form onSubmit={handleLogin}>
+                                <input type="email" placeholder="請輸入註冊 Email" required
+                                       className="w-full border p-2 mb-4 rounded"
+                                       value={email} onChange={(e) => setEmail(e.target.value)} />
+                                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-bold hover:bg-blue-700">登入 / 註冊</button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="container mx-auto p-4 sm:p-8 max-w-2xl">
+                    <div className="bg-white p-8 rounded shadow-md">
+                        <h2 className="text-2xl font-bold mb-6">參賽者報名表</h2>
+                        <p className="mb-4 text-gray-600">登入帳號：{email}</p>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block font-bold mb-1">所屬社名</label>
+                                <input type="text" required className="w-full border p-2 rounded"
+                                       onChange={(e) => update({ club: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="block font-bold mb-1">本名</label>
+                                <input type="text" required className="w-full border p-2 rounded"
+                                       onChange={(e) => update({ name: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="block font-bold mb-1">初賽曲目</label>
+                                <input type="text" required className="w-full border p-2 rounded"
+                                       onChange={(e) => update({ song: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="block font-bold mb-1">照片上傳</label>
+                                <input type="file" accept="image/*" required className="w-full"
+                                       onChange={(e) => handleFile(e, 'photo')} />
+                            </div>
+                            <div>
+                                <label className="block font-bold mb-1">音檔/伴唱帶上傳 (可選)</label>
+                                <input type="file" accept="audio/*" className="w-full"
+                                       onChange={(e) => handleFile(e, 'audio')} />
+                            </div>
+                            <button type="submit" disabled={submitting}
+                                    className="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700 disabled:opacity-50">
+                                {submitting ? '上傳中...' : '送出報名'}
+                            </button>
+                            {status && <p className="mt-4 font-bold text-center text-red-600">{status}</p>}
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
