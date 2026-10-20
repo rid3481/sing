@@ -1053,6 +1053,7 @@ function drawAdminPaper(body) {
     tr.classList.add('changed');
   });
   P.keep = null;
+  setTimeout(() => refreshHint());
   const parse = v => { v = String(v).trim(); return v === '' ? null : Number(v); };
   const checkCell = inp => {
     const c = crit[inp.dataset.k], v = parse(inp.value);
