@@ -220,11 +220,15 @@ function renderHome() {
   const deadline = !cfg.regOpen ? '報名已截止'
     : left < 0 ? `報名截止日 ${EVENT.deadlineText}` : left === 0 ? '<b>今天</b> 截止報名' : `距離報名截止還有 <b>${left}</b> 天`;
   const acts = [];
+  if (cfg.finalsReady && cfg.profileOpen) acts.push(`<a class="btn gold" href="#final">決賽選手專區<small>填寫決賽曲目、上傳決賽音檔</small></a>`);
   if (cfg.regOpen) acts.push(`<a class="btn gold ${cfg.profileOpen ? '' : 'wide'}" href="#register">我要報名<small>新參賽者</small></a>`);
   if (cfg.profileOpen) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
   if (anyPub('ranks')) acts.push(`<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`);
   if (anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
-  if (acts.length % 2 === 1 && acts.length > 1) acts[acts.length - 1] = acts[acts.length - 1].replace('class="btn ', 'class="btn wide ');
+  // 決賽專區獨佔一列；其餘按鈕兩兩一列，落單的撐滿
+  if (cfg.finalsReady && cfg.profileOpen) acts[0] = acts[0].replace('class="btn ', 'class="btn wide ');
+  const rest = acts.length - (cfg.finalsReady && cfg.profileOpen ? 1 : 0);
+  if (rest % 2 === 1 && rest > 1) acts[acts.length - 1] = acts[acts.length - 1].replace('class="btn ', 'class="btn wide ');
   app.innerHTML = `
     <section class="hero">
       <div class="notes" aria-hidden="true"><span style="left:6%;top:14%">♪</span><span style="right:5%;top:6%;font-size:30px">♫</span><span style="left:12%;bottom:18%;font-size:22px">♩</span><span style="right:16%;bottom:12%">♪</span></div>
@@ -373,11 +377,12 @@ function renderRegister() {
   app.innerHTML = pageHead('我要報名') + '<div class="card center">報名已截止</div>';
 }
 
-function renderProfileLogin() {
+function renderProfileLogin(finalMode = false) {
   app.className = 'wrap';
-  if (!cfg.profileOpen) { app.innerHTML = pageHead('補填／修改資料') + '<div class="card center">補資料已截止</div>'; return; }
+  const title = finalMode ? '決賽選手專區' : '補填／修改資料';
+  if (!cfg.profileOpen) { app.innerHTML = pageHead(title) + '<div class="card center">已截止修改資料</div>'; return; }
   const emailOnly = cfg.loginMode === '僅Email';
-  app.innerHTML = pageHead('補填／修改資料', '已經報名的參賽者，從這裡補上 Email、身份、曲目或照片') + `
+  app.innerHTML = pageHead(title, finalMode ? '恭喜晉級決賽！請登入填寫決賽曲目並上傳決賽音檔' : '已經報名的參賽者，從這裡補上 Email、身份、曲目或照片') + `
     <div class="card">
       <form id="f">
         <label for="key" style="margin-top:0">${emailOnly ? 'Email' : '本名或 Email'}</label>
@@ -388,13 +393,15 @@ function renderProfileLogin() {
         <p class="msg" id="m"></p>
       </form>
     </div>
-    ${cfg.regOpen ? '<p class="center"><a href="#register">還沒報名？我要報名 ›</a></p>' : ''}`;
+    ${cfg.regOpen && !finalMode ? '<p class="center"><a href="#register">還沒報名？我要報名 ›</a></p>' : ''}`;
   const m = $('#m'), go = $('#go');
   $('#f').onsubmit = async e => {
     e.preventDefault();
     go.disabled = true; setMsg(m, '查詢中…');
     try {
       const r = await api('login', { key: $('#key').value.trim() });
+      if (finalMode && !r.entries.some(x => x.advanced)) throw new Error('你目前不在決賽名單中。如有疑問請洽地區辦公室。');
+      if (finalMode) r.entries = r.entries.filter(x => x.advanced);
       if (r.entries.length === 1) return renderProfileForm(r.entries[0]);
       app.innerHTML = pageHead('請選擇你的報名') + `<div class="list">${r.entries.map((x, i) =>
         `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x['歌手1本名'])}</div><div class="meta">${esc(x.id)}・${esc(x['社名'])}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div>`;
@@ -461,6 +468,17 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       ${okText ? `<p class="msg ok">${esc(okText)}</p>` : missing.length ? `<div class="banner" style="margin:12px 0 0">還缺：${missing.join('、')}</div>` : ''}
     </div>
     <form id="f">
+      ${entry.advanced ? `<div class="card" style="border-color:var(--gold-2)">
+        <h2>決賽曲目 <span class="chip gold">晉級者填寫</span></h2>
+        <label for="決賽曲目" style="margin-top:0">歌名 <span class="opt">不得與初賽曲目重複</span></label>
+        <input id="決賽曲目" type="text" value="${v('決賽曲目')}">
+        <label for="決賽語種">語種</label>
+        <select id="決賽語種">${langOptions(entry['決賽語種'])}</select>
+        <label for="決賽原唱">原唱 <span class="opt">選填</span></label>
+        <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
+        <label for="finalAudio">決賽音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.finalAudio ? '，已上傳，重新選擇會取代' : ''}</span></label>
+        <input id="finalAudio" type="file" accept="audio/*">
+      </div>` : ''}
       <div class="card">
         <h2>所屬社團</h2>
         <label for="zone" style="margin-top:0">分區</label>
@@ -477,22 +495,13 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <label for="原唱">原唱 <span class="opt">選填</span></label>
         <input id="原唱" type="text" value="${v('原唱')}">
       </div>
-      ${entry.advanced ? `<div class="card" style="border-color:var(--gold-2)">
-        <h2>決賽曲目 <span class="chip gold">晉級者填寫</span></h2>
-        <label for="決賽曲目" style="margin-top:0">歌名 <span class="opt">不得與初賽曲目重複</span></label>
-        <input id="決賽曲目" type="text" value="${v('決賽曲目')}">
-        <label for="決賽語種">語種</label>
-        <select id="決賽語種">${langOptions(entry['決賽語種'])}</select>
-        <label for="決賽原唱">原唱 <span class="opt">選填</span></label>
-        <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
-      </div>` : ''}
       ${singer(1, '歌手')}
       ${singer(2, '合唱者 <span class="opt">選填</span>')}
       <div class="card">
         <h2>照片與音檔</h2>
         <label for="photo" style="margin-top:0">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
         <input id="photo" type="file" accept="image/*">
-        <label for="audio">音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
+        <label for="audio">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
       </div>
       <button class="full ${isNew ? 'gold' : ''}" id="save">${isNew ? '送出報名' : '儲存'}</button>
@@ -522,8 +531,10 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
-      if (audio && audio.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
+      const finalAudio = $('#finalAudio') && $('#finalAudio').files[0];
+      if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * 1024 * 1024)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
       const payload = { as: me, data };
+      if (finalAudio) payload.finalAudio = { name: finalAudio.name, data: await readDataUrl(finalAudio) };
       if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
       setMsg(m, '處理檔案中…');
       if (photo) payload.photo = await shrinkImage(photo);
@@ -978,6 +989,7 @@ function homeRoute() {
   else if (h === '#me') renderMe();
   else if (h === '#rules') renderRules();
   else if (h === '#profile') renderProfileLogin();
+  else if (h === '#final') renderProfileLogin(true);
   else if (h === '#register') renderRegister();
   else renderHome();
   window.scrollTo(0, 0);
