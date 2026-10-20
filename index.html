@@ -243,7 +243,7 @@ function renderHome() {
     <div class="card">
       <h2>比賽重點</h2>
       <div class="facts">
-        <div class="fact"><div class="k">參賽資格</div><div class="v">3481 地區社友、寶眷、執秘</div></div>
+        <div class="fact"><div class="k">參賽資格</div><div class="v">3481 地區社友、寶眷、尊眷、執秘</div></div>
         <div class="fact"><div class="k">報名費</div><div class="v">3,000 元／每位</div></div>
         <div class="fact"><div class="k">曲目語言</div><div class="v">英、日、國、台語</div></div>
         <div class="fact"><div class="k">名額</div><div class="v">共 70 組・決賽錄取 30 位</div></div>
@@ -265,7 +265,7 @@ function renderRules() {
       <p><b>初賽</b>：${EVENT.prelim.date}，${EVENT.prelim.place}（${EVENT.prelim.note}）</p>
       <p><b>決賽</b>：${EVENT.final.date}，${EVENT.final.place}（${EVENT.final.note}）</p>
       <h3>參賽資格</h3>
-      <p>3481 地區社友、寶眷、執秘為限。</p>
+      <p>3481 地區社友、寶眷（社友夫人）、尊眷（社友先生）、執秘為限。</p>
       <h3>報名費</h3>
       <p>每位 3,000 元。</p>
       <h3>曲目</h3>
@@ -280,9 +280,9 @@ function renderRules() {
       </ul>
       <h3>報名方式</h3>
       <ul>
-        <li>敬邀各社贊助活動經費 5,000 元成為贊助社，贊助社可免費推薦一名參加比賽，超過則依實際報名人數收取報名費。</li>
-        <li>報名以社為單位，統一由社辦彙整報名表，mail 至 <a href="mailto:ri3481@hibox.biz">ri3481@hibox.biz</a>（Sharon 收）。</li>
-        <li>本網站可線上登錄或補填參賽資料（Email、曲目、照片等），方便主辦單位彙整與日後查詢成績。</li>
+        <li>報名費每位 3,000 元。敬邀各社贊助活動經費 5,000 元成為贊助社，贊助社可免費推薦一名參加比賽，超過則依實際報名人數收取報名費。</li>
+        <li>於本網站「<a href="#register">我要報名</a>」填寫並送出，即完成報名。報名後可隨時用 Email 登入「補填／修改資料」更新曲目、照片等資料。</li>
+        <li>各社社辦也可依原方式彙整報名表，mail 至 <a href="mailto:ri3481@hibox.biz">ri3481@hibox.biz</a>（Sharon 收），由主辦單位協助登錄。</li>
       </ul>
       <h3>總監獎項</h3>
       <ul>
@@ -436,6 +436,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       <div ${partner ? 'class="duet-extra"' : ''}>
         <label for="${k('身份')}">身份</label>
         <select id="${k('身份')}" ${n === 1 ? 'required' : ''}>${idOptions(entry[k('身份')])}</select>
+        <p class="meta" style="margin:6px 0 0">寶眷：社友夫人／尊眷：社友先生</p>
         <label for="${k('Email')}">Email <span class="opt">${mine ? '必填，之後用來登入與查成績' : '選填，本人也可以自己登入補填'}</span></label>
         <input id="${k('Email')}" type="email" ${mine ? 'required' : ''} autocomplete="${mine ? 'email' : 'off'}" value="${v(k('Email'))}" placeholder="name@example.com">
         <label for="${k('電話')}">電話 <span class="opt">選填</span></label>
