@@ -150,7 +150,7 @@ function renderHome() {
   app.className = 'wrap';
   const cards = [];
   if (cfg.ranksPublic) cards.push(['#ranks', '名次公告', '查看本次比賽的完整名次']);
-  if (cfg.detailPublic) cards.push(['#me', '查詢我的成績', '用報名 Email 收驗證碼，查看各項分數與評審評語']);
+  if (cfg.detailPublic) cards.push(['#me', '查詢我的成績', '輸入 Email，查看各項分數與評審評語']);
   if (cfg.profileOpen) cards.push(['#profile', '補填參賽資料', '補上 Email、電話、曲目或照片']);
   app.innerHTML = head() + (cards.length
     ? cards.map(([h, t, d]) => `<a class="card" href="${h}"><div class="row"><div class="grow"><div class="name">${t}</div><div class="meta">${d}</div></div><span aria-hidden="true">›</span></div></a>`).join('')
@@ -181,49 +181,29 @@ function renderMe() {
   if (!cfg.detailPublic) { app.innerHTML = head() + backLink() + '<div class="card center">評分細節尚未公布</div>'; return; }
   const saved = store('sing:email') || '';
   app.innerHTML = head() + backLink() + `
-    <div class="card">
+    <div class="card" id="ask">
       <h2>查詢我的成績</h2>
-      <form id="f1">
-        <label for="em">報名時的 Email</label>
+      <form id="f">
+        <label for="em">補資料時填的 Email</label>
         <input id="em" type="email" required autocomplete="email" placeholder="name@example.com" value="${esc(saved)}">
-        <button class="full" style="margin-top:14px" id="b1">寄送驗證碼</button>
-      </form>
-      <form id="f2" style="display:none">
-        <p class="meta" id="sentTo"></p>
-        <label for="code">6 位數驗證碼</label>
-        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="123456"
-          style="font-size:22px;letter-spacing:6px;text-align:center">
-        <button class="full" style="margin-top:14px" id="b2">查看成績</button>
-        <button type="button" class="link" id="resend">重新寄送</button>
+        <button class="full" style="margin-top:14px" id="b">查詢</button>
       </form>
       <p class="msg" id="m"></p>
     </div>
     <div id="out"></div>`;
-  const m = $('#m'), f1 = $('#f1'), f2 = $('#f2');
-  let email = '';
-  const send = async () => {
-    email = $('#em').value.trim();
-    $('#b1').disabled = true; setMsg(m, '寄送中…');
-    try {
-      await api('requestCode', { email });
-      store('sing:email', email);
-      f1.style.display = 'none'; f2.style.display = '';
-      $('#sentTo').textContent = `驗證碼已寄到 ${email}，10 分鐘內有效。沒收到請看垃圾郵件匣。`;
-      setMsg(m, ''); $('#code').focus();
-    } catch (err) { setMsg(m, err.message, 'err'); }
-    $('#b1').disabled = false;
-  };
-  f1.onsubmit = e => { e.preventDefault(); send(); };
-  $('#resend').onclick = () => { f2.style.display = 'none'; f1.style.display = ''; send(); };
-  f2.onsubmit = async e => {
+  const m = $('#m'), b = $('#b');
+  $('#f').onsubmit = async e => {
     e.preventDefault();
-    $('#b2').disabled = true; setMsg(m, '查詢中…');
+    const email = $('#em').value.trim();
+    b.disabled = true; setMsg(m, '查詢中…');
     try {
-      const r = await api('myResult', { email, code: $('#code').value.trim() });
-      setMsg(m, '');
-      app.querySelector('.card').style.display = 'none';
-      $('#out').innerHTML = r.results.length ? r.results.map(x => resultCard(x, r.criteria, r.stage)).join('') : '<div class="card center">目前沒有你的評分資料</div>';
-    } catch (err) { setMsg(m, err.message, 'err'); $('#b2').disabled = false; }
+      const r = await api('myResult', { email });
+      store('sing:email', email);
+      $('#ask').style.display = 'none';
+      $('#out').innerHTML = r.results.map(x => resultCard(x, r.criteria, r.stage)).join('')
+        + `<p class="center"><button class="link" id="again">查詢其他 Email</button></p>`;
+      $('#again').onclick = renderMe;
+    } catch (err) { setMsg(m, err.message, 'err'); b.disabled = false; }
   };
 }
 
@@ -602,7 +582,6 @@ function drawAdmin() {
   const allDone = d.judges.every(j => j.done === total);
   const ranked = d.results.filter(r => r.rank !== '').sort((a, b) => a.rank - b.rank);
   const unranked = d.results.filter(r => r.rank === '');
-  const chip = (on, a, b) => `<span class="chip ${on ? 'ok' : ''}">${on ? a : b}</span>`;
   const t = d.loadedAt;
   app.innerHTML = `
     <h1>主辦即時名次</h1>
@@ -610,8 +589,10 @@ function drawAdmin() {
       <button class="link" id="reload">立即更新</button></p>
     ${A.err ? `<div class="banner err">更新失敗：${esc(A.err)}</div>` : ''}
     <div class="card">
-      <div class="row" style="flex-wrap:wrap;gap:8px">${chip(d.settings.scoringOpen, '評分開放中', '評分已鎖定')}${chip(d.settings.ranksPublic, '名次已公開', '名次未公開')}${chip(d.settings.detailPublic, '細節已公開', '細節未公開')}</div>
-      <p class="meta small" style="margin:8px 0 0">要鎖分或公開，請到 Sheet 的「設定」表修改。</p>
+      ${switchRow('開放評分', d.settings.scoringOpen, '評分開放中，評審可以修改分數', '評分已鎖定，評審只能查看', '開放評分', '鎖定評分')}
+      ${switchRow('公布名次', d.settings.ranksPublic, '名次已公布，所有人都看得到', '名次未公布', '公布名次', '取消公布')}
+      ${switchRow('公布評分細節', d.settings.detailPublic, '細節已公布，選手可用 Email 查分數與評語', '評分細節未公布', '公布細節', '取消公布')}
+      <p class="msg" id="sm"></p>
     </div>
     <div class="grid" style="margin-bottom:12px">${d.judges.map(j => `
       <div class="card" style="margin:0"><div class="row"><div class="grow name">${esc(j.name)}</div><span class="${j.done === total ? 'chip ok' : 'chip warn'}">${j.done} / ${total}</span></div>
@@ -630,6 +611,40 @@ function drawAdmin() {
       </div>`).join('') || '<div class="item" style="cursor:default"><span class="meta">還沒有任何評分</span></div>'}</div>
     ${unranked.length ? `<p class="meta" style="margin-top:12px">尚未有評分：${unranked.map(r => esc(r.singers)).join('、')}</p>` : ''}`;
   $('#reload').onclick = loadAdmin;
+  app.querySelectorAll('[data-sw]').forEach(b => b.onclick = () => toggleSwitch(b.dataset.sw, b.dataset.on === '1'));
+}
+
+function switchRow(key, on, onText, offText, turnOn, turnOff) {
+  return `<div class="row" style="padding:8px 0;border-top:1px solid var(--line)">
+    <span class="chip ${on ? 'ok' : ''}">${on ? '●' : '○'}</span>
+    <div class="grow small">${on ? onText : offText}</div>
+    <button class="${on ? 'ghost' : ''}" style="padding:8px 14px;min-height:40px;font-size:14px" data-sw="${key}" data-on="${on ? 0 : 1}">${on ? turnOff : turnOn}</button>
+  </div>`;
+}
+
+const SWITCH_CONFIRM = {
+  '開放評分:1': '重新開放評分？評審可以再修改分數，名次可能會變動。',
+  '開放評分:0': '鎖定評分？評審將無法再修改分數。',
+  '公布名次:1': '公布名次？所有人都能在首頁看到名次列表，同時會鎖定評分。',
+  '公布名次:0': '取消公布名次？首頁將不再顯示名次。',
+  '公布評分細節:1': '公布評分細節？選手可以用 Email 查到自己的各項分數與評語，同時會鎖定評分。',
+  '公布評分細節:0': '取消公布評分細節？選手將查不到分數與評語。',
+};
+
+async function toggleSwitch(key, value) {
+  if (!confirm(SWITCH_CONFIRM[key + ':' + (value ? 1 : 0)])) return;
+  const sm = $('#sm');
+  app.querySelectorAll('[data-sw]').forEach(b => b.disabled = true);
+  setMsg(sm, '更新中…');
+  try {
+    A.data = await api('adminSet', { at: A.at, key, value });
+    A.data.loadedAt = new Date();
+    drawAdmin();
+    toast('已更新');
+  } catch (err) {
+    setMsg(sm, err.message, 'err');
+    app.querySelectorAll('[data-sw]').forEach(b => b.disabled = false);
+  }
 }
 
 // =================== 啟動 ===================
