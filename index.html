@@ -644,17 +644,17 @@ function homeRoute() {
 }
 
 (async () => {
+  // 評審、主辦頁各自帶回需要的設定，不另外讀 config
+  if (params.get('judge')) return startJudge(params.get('judge'));
+  if (params.get('admin')) return startAdmin(params.get('admin'));
   try {
     cfg = await api('config');
   } catch (err) {
-    if (!(params.get('judge') && err instanceof NetError)) {
-      app.innerHTML = `<h1>${TITLE}</h1><div class="banner err">系統暫時無法連線：${esc(err.message)}</div>`;
-      return;
-    }
+    app.innerHTML = `<h1>${TITLE}</h1><div class="banner err">系統暫時無法連線：${esc(err.message)}</div>`;
+    return;
   }
-  if (params.get('judge')) startJudge(params.get('judge'));
-  else if (params.get('admin')) startAdmin(params.get('admin'));
-  else { window.addEventListener('hashchange', homeRoute); homeRoute(); }
+  window.addEventListener('hashchange', homeRoute);
+  homeRoute();
 })();
 </script>
 </body>
