@@ -2,191 +2,330 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4f5f7">
 <title>2026-27年度 歌唱大賽</title>
 <style>
   :root {
-    --bg: #f4f5f7; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #d0d7de;
-    --primary: #1f6feb; --primary-text: #fff; --ok: #1a7f37; --warn-bg: #fff8c5; --warn-line: #d4a72c;
-    --err: #cf222e; --chip: #eef1f4;
+    --bg: #f4f5f7; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #d8dde3; --soft: #eef1f4;
+    --primary: #1f6feb; --on-primary: #fff; --ok: #1a7f37; --ok-bg: #dafbe1; --warn: #9a6700; --warn-bg: #fff8c5;
+    --err: #cf222e; --err-bg: #ffebe9; --sel: #ddf4ff;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font: 16px/1.55 -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-  .wide { max-width: 1000px; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  h2 { font-size: 18px; margin: 0 0 16px; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1117; --card: #161b22; --text: #e6edf3; --muted: #9198a1; --line: #30363d; --soft: #21262d;
+      --primary: #388bfd; --on-primary: #fff; --ok: #3fb950; --ok-bg: #12261e; --warn: #d29922; --warn-bg: #272115;
+      --err: #f85149; --err-bg: #2d1416; --sel: #121d2f;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 16px/1.55 -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 120px; }
+  .wrap.wide { max-width: 960px; }
+  h1 { font-size: 20px; margin: 4px 0 2px; }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  a.card { display: block; color: inherit; text-decoration: none; }
+  a.card:active { background: var(--soft); }
   label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 4px; }
-  label .opt { font-weight: 400; color: var(--muted); }
-  input[type=text], input[type=email], input[type=tel], input[type=number], select, textarea {
-    width: 100%; padding: 10px 12px; font: inherit; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text); }
-  textarea { min-height: 64px; resize: vertical; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
-  @media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
-  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 11px 18px; cursor: pointer;
-    background: var(--primary); color: var(--primary-text); }
-  button.ghost { background: var(--chip); color: var(--text); }
+  .opt { font-weight: 400; color: var(--muted); font-size: 13px; }
+  input[type=text], input[type=email], input[type=tel], textarea {
+    width: 100%; padding: 11px 12px; font: inherit; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); }
+  input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+  textarea { min-height: 72px; resize: vertical; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; min-height: 44px;
+    background: var(--primary); color: var(--on-primary); }
+  button.ghost { background: var(--soft); color: var(--text); }
+  button.link { background: none; color: var(--primary); padding: 8px 4px; min-height: 0; }
   button:disabled { opacity: .5; cursor: default; }
-  .full { width: 100%; margin-top: 20px; }
-  .msg { margin-top: 14px; font-weight: 600; }
+  .full { width: 100%; }
+  .msg { margin: 12px 0 0; font-weight: 600; font-size: 15px; }
+  .msg:empty { display: none; }
   .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
-  .notice { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 8px; }
-  .chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 13px; margin-right: 6px; }
-  .thumb { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; background: var(--chip); display: block; }
-  .pick { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .links a { font-size: 14px; margin-right: 12px; }
-  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
-  .bar .grow { flex: 1; }
-  .entry { display: grid; grid-template-columns: 96px 1fr; gap: 16px; }
-  @media (max-width: 520px) { .entry { grid-template-columns: 1fr; } }
-  .scores { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px 12px; }
-  .scores label { margin-top: 8px; }
-  .done { border-left: 4px solid var(--ok); }
-  .total { font-weight: 700; }
-  .hidden { display: none !important; }
+  .banner { border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; background: var(--warn-bg); color: var(--warn); }
+  .banner.err { background: var(--err-bg); color: var(--err); }
+  .chip { display: inline-block; background: var(--soft); border-radius: 999px; padding: 2px 10px; font-size: 13px; white-space: nowrap; }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); } .chip.warn { background: var(--warn-bg); color: var(--warn); }
+  .chip.err { background: var(--err-bg); color: var(--err); }
+  .thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; background: var(--soft); flex: none; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .grow { flex: 1; min-width: 0; }
+  .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--primary); }
+  .bar.ok > i { background: var(--ok); }
+  .tabs { display: flex; gap: 8px; margin: 12px 0; overflow-x: auto; }
+  .tabs button { padding: 8px 14px; min-height: 36px; font-size: 14px; white-space: nowrap; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+  .item:first-child { border-top: 0; }
+  .item:active { background: var(--soft); }
+  .num { width: 32px; text-align: center; font-weight: 700; color: var(--muted); flex: none; }
+  .name { font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .sticky { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0 10px; margin: -16px 0 8px; padding-top: 16px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .nav button { padding: 8px 12px; min-height: 40px; }
+  .crit { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .crit:first-of-type { border-top: 0; }
+  .crit .lab { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; line-height: 1.3; }
+  .crit .lab small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+  .step { display: flex; align-items: center; gap: 6px; flex: none; }
+  .step button { width: 44px; height: 44px; padding: 0; font-size: 22px; line-height: 1; background: var(--soft); color: var(--text); }
+  .step input { width: 64px; height: 44px; text-align: center; font-size: 20px; font-weight: 700; padding: 0; }
+  .crit .err { color: var(--err); font-size: 13px; flex-basis: 100%; }
+  .crit.bad input { border-color: var(--err); }
+  .crit { flex-wrap: wrap; }
+  .actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--card); border-top: 1px solid var(--line);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .actionbar .in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .total { font-size: 15px; color: var(--muted); }
+  .total b { font-size: 24px; color: var(--text); }
+  .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--text); color: var(--bg);
+    padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 20; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .rank { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; background: var(--soft); flex: none; }
+  .rank.top { background: var(--primary); color: var(--on-primary); }
+  .stat { font-size: 32px; font-weight: 800; line-height: 1.1; }
+  .kv { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .kv:first-child { border-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .small { font-size: 13px; }
+  .center { text-align: center; }
 </style>
 </head>
 <body>
 <div id="app" class="wrap"><p class="sub">載入中…</p></div>
+<div id="toast" class="toast"></div>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
 const MAX_AUDIO_MB = 25;
+const TITLE = '2026-27年度 歌唱大賽';
 
 const app = document.getElementById('app');
+const params = new URLSearchParams(location.search);
 let cfg = null;
+
+class NetError extends Error {}
 
 async function api(action, payload = {}) {
   let res;
   try {
     res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
   } catch (e) {
-    throw new Error('連線失敗，請檢查網路後再試一次');
+    throw new NetError('連線失敗，請檢查網路');
   }
-  const data = await res.json().catch(() => { throw new Error('伺服器回應異常，請稍後再試'); });
+  let data;
+  try { data = await res.json(); } catch (e) { throw new NetError('伺服器忙碌，請稍後再試'); }
   if (data.status !== 'success') throw new Error(data.message || '發生錯誤');
   return data;
 }
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const thumbUrl = id => id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w300` : '';
+const thumbUrl = (id, w = 300) => id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w}` : '';
+const fmt = n => (n === '' || n == null) ? '—' : String(Math.round(Number(n) * 100) / 100);
+const $ = sel => app.querySelector(sel);
 function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg ' + (kind || ''); }
-
-function header(extra = '') {
-  return `<h1>2026-27年度 歌唱大賽</h1><p class="sub">${cfg && cfg.stage ? '目前賽程：' + esc(cfg.stage) : ''}${extra}</p>`;
+let toastTimer;
+function toast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function store(key, val) {
+  try { if (val === undefined) return JSON.parse(localStorage.getItem(key) || 'null'); localStorage.setItem(key, JSON.stringify(val)); }
+  catch (e) { return null; }
+}
+function head(sub = '') {
+  return `<h1>${TITLE}</h1><p class="sub">${esc(sub || (cfg && cfg.stage ? '目前賽程：' + cfg.stage : ''))}</p>`;
 }
 
-// ---------- 參賽者 ----------
+// =================== 首頁 ===================
 
-function renderLogin(prefill = '') {
-  const emailOnly = cfg.loginMode === '僅Email';
+function renderHome() {
   app.className = 'wrap';
-  app.innerHTML = header() + `
+  const cards = [];
+  if (cfg.ranksPublic) cards.push(['#ranks', '名次公告', '查看本次比賽的完整名次']);
+  if (cfg.detailPublic) cards.push(['#me', '查詢我的成績', '用報名 Email 收驗證碼，查看各項分數與評審評語']);
+  if (cfg.profileOpen) cards.push(['#profile', '補填參賽資料', '補上 Email、電話、曲目或照片']);
+  app.innerHTML = head() + (cards.length
+    ? cards.map(([h, t, d]) => `<a class="card" href="${h}"><div class="row"><div class="grow"><div class="name">${t}</div><div class="meta">${d}</div></div><span aria-hidden="true">›</span></div></a>`).join('')
+    : `<div class="card center"><p style="margin:8px 0">成績尚未公布，請留意主辦單位通知。</p></div>`);
+}
+
+// =================== 公開名次 ===================
+
+async function renderRanks() {
+  app.className = 'wrap';
+  app.innerHTML = head() + '<p class="sub">載入中…</p>';
+  try {
+    const r = await api('ranks');
+    if (!r.published) { app.innerHTML = head() + backLink() + '<div class="card center">名次尚未公布</div>'; return; }
+    app.innerHTML = head(r.stage + '名次') + backLink() + (r.list.length ? `<div class="list">${r.list.map(x => `
+      <div class="item" style="cursor:default"><div class="rank ${x.rank <= 3 ? 'top' : ''}">${x.rank}</div>
+        <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
+      : '<div class="card center">目前沒有名次資料</div>');
+  } catch (err) { app.innerHTML = head() + backLink() + `<div class="banner err">${esc(err.message)}</div>`; }
+}
+
+function backLink() { return `<p style="margin:-8px 0 12px"><a href="#" style="color:var(--primary);text-decoration:none">‹ 回首頁</a></p>`; }
+
+// =================== 查詢我的成績 ===================
+
+function renderMe() {
+  app.className = 'wrap';
+  if (!cfg.detailPublic) { app.innerHTML = head() + backLink() + '<div class="card center">評分細節尚未公布</div>'; return; }
+  const saved = store('sing:email') || '';
+  app.innerHTML = head() + backLink() + `
     <div class="card">
-      <h2>參賽者登入</h2>
+      <h2>查詢我的成績</h2>
+      <form id="f1">
+        <label for="em">報名時的 Email</label>
+        <input id="em" type="email" required autocomplete="email" placeholder="name@example.com" value="${esc(saved)}">
+        <button class="full" style="margin-top:14px" id="b1">寄送驗證碼</button>
+      </form>
+      <form id="f2" style="display:none">
+        <p class="meta" id="sentTo"></p>
+        <label for="code">6 位數驗證碼</label>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="123456"
+          style="font-size:22px;letter-spacing:6px;text-align:center">
+        <button class="full" style="margin-top:14px" id="b2">查看成績</button>
+        <button type="button" class="link" id="resend">重新寄送</button>
+      </form>
+      <p class="msg" id="m"></p>
+    </div>
+    <div id="out"></div>`;
+  const m = $('#m'), f1 = $('#f1'), f2 = $('#f2');
+  let email = '';
+  const send = async () => {
+    email = $('#em').value.trim();
+    $('#b1').disabled = true; setMsg(m, '寄送中…');
+    try {
+      await api('requestCode', { email });
+      store('sing:email', email);
+      f1.style.display = 'none'; f2.style.display = '';
+      $('#sentTo').textContent = `驗證碼已寄到 ${email}，10 分鐘內有效。沒收到請看垃圾郵件匣。`;
+      setMsg(m, ''); $('#code').focus();
+    } catch (err) { setMsg(m, err.message, 'err'); }
+    $('#b1').disabled = false;
+  };
+  f1.onsubmit = e => { e.preventDefault(); send(); };
+  $('#resend').onclick = () => { f2.style.display = 'none'; f1.style.display = ''; send(); };
+  f2.onsubmit = async e => {
+    e.preventDefault();
+    $('#b2').disabled = true; setMsg(m, '查詢中…');
+    try {
+      const r = await api('myResult', { email, code: $('#code').value.trim() });
+      setMsg(m, '');
+      app.querySelector('.card').style.display = 'none';
+      $('#out').innerHTML = r.results.length ? r.results.map(x => resultCard(x, r.criteria, r.stage)).join('') : '<div class="card center">目前沒有你的評分資料</div>';
+    } catch (err) { setMsg(m, err.message, 'err'); $('#b2').disabled = false; }
+  };
+}
+
+function resultCard(x, criteria, stage) {
+  return `<div class="card">
+    <div class="meta">${esc(stage)}・${esc(x.club)}</div>
+    <div class="name" style="font-size:18px">${esc(x.singers)}</div>
+    <div class="meta">${esc(x.song)}</div>
+    <div class="grid" style="margin:14px 0">
+      <div><div class="meta">名次</div><div class="stat">${x.rank === '' ? '—' : '第 ' + x.rank + ' 名'}</div></div>
+      <div><div class="meta">平均總分</div><div class="stat">${fmt(x.total)}</div></div>
+    </div>
+    ${criteria.map(c => `<div class="kv"><span>${esc(c.name)}</span><span>${fmt(x.items[c.name])} / ${c.max}</span></div>`).join('')}
+    <h2 style="margin-top:18px">評審評語</h2>
+    ${x.comments.length ? x.comments.map(c => `<div class="kv" style="display:block"><div class="meta">${esc(c.judge)}</div><div style="white-space:pre-wrap">${esc(c.text)}</div></div>`).join('') : '<p class="meta">評審沒有留下評語</p>'}
+  </div>`;
+}
+
+// =================== 補填參賽資料 ===================
+
+function renderProfileLogin() {
+  app.className = 'wrap';
+  if (!cfg.profileOpen) { app.innerHTML = head() + backLink() + '<div class="card center">補資料已截止</div>'; return; }
+  const emailOnly = cfg.loginMode === '僅Email';
+  app.innerHTML = head() + backLink() + `
+    <div class="card">
+      <h2>補填參賽資料</h2>
       <form id="f">
-        <label>${emailOnly ? 'Email' : '本名或 Email'}</label>
+        <label for="key">${emailOnly ? 'Email' : '本名或 Email'}</label>
         <input id="key" type="${emailOnly ? 'email' : 'text'}" required autocomplete="username"
-          placeholder="${emailOnly ? '請輸入報名時的 Email' : '已在名單上可輸入本名；新報名請輸入 Email'}" value="${esc(prefill)}">
-        <button class="full" id="go">登入</button>
+          placeholder="${emailOnly ? 'name@example.com' : '第一次請輸入報名時的本名'}">
+        <p class="meta small" style="margin:6px 0 0">${emailOnly ? '請用你補填過的 Email 登入。' : '補上 Email 之後，下次請改用 Email 登入。'}</p>
+        <button class="full" style="margin-top:14px" id="go">登入</button>
         <p class="msg" id="m"></p>
       </form>
     </div>`;
-  const m = document.getElementById('m'), go = document.getElementById('go');
-  document.getElementById('f').onsubmit = async e => {
+  const m = $('#m'), go = $('#go');
+  $('#f').onsubmit = async e => {
     e.preventDefault();
-    const key = document.getElementById('key').value.trim();
     go.disabled = true; setMsg(m, '查詢中…');
     try {
-      const r = await api('login', { key });
-      if (r.isNew) {
-        if (!cfg.regOpen) throw new Error('名單上沒有這個 Email，且目前已截止報名');
-        return renderForm({ Email: key }, true);
-      }
-      if (r.entries.length === 1) return renderForm(r.entries[0]);
-      renderPick(r.entries);
+      const r = await api('login', { key: $('#key').value.trim() });
+      if (r.entries.length === 1) return renderProfileForm(r.entries[0]);
+      app.innerHTML = head() + `<div class="card"><h2>找到 ${r.entries.length} 筆，請選擇</h2><div class="list">${r.entries.map((x, i) =>
+        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.name)}</div><div class="meta">${esc(x.id)}・${esc(x.club)}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
+      app.querySelectorAll('[data-i]').forEach(el => el.onclick = () => renderProfileForm(r.entries[el.dataset.i]));
     } catch (err) { setMsg(m, err.message, 'err'); go.disabled = false; }
   };
 }
 
-function renderPick(entries) {
-  app.innerHTML = header() + `<div class="card"><h2>找到 ${entries.length} 筆報名，請選擇</h2>
-    ${entries.map((x, i) => `<div class="pick card"><div><strong>${esc(x.id)}</strong> ${esc(x['社名'])}<br>
-      ${esc(x['歌手1本名'])}${x['歌手2本名'] ? '、' + esc(x['歌手2本名']) : ''}・${esc(x['歌名'] || '尚未提供曲目')}</div>
-      <button data-i="${i}">選擇</button></div>`).join('')}
-    <button class="ghost" id="back">返回</button></div>`;
-  app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => renderForm(entries[b.dataset.i]));
-  document.getElementById('back').onclick = () => renderLogin();
-}
-
-function clubOptions(selected) {
-  const zones = [];
-  cfg.clubs.forEach(c => { let z = zones.find(x => x.zone === c.zone); if (!z) zones.push(z = { zone: c.zone, clubs: [] }); z.clubs.push(c.club); });
-  return `<option value="">請選擇社名</option>` + zones.map(z =>
-    `<optgroup label="${esc(z.zone)}">${z.clubs.map(c => `<option${c === selected ? ' selected' : ''}>${esc(c)}</option>`).join('')}</optgroup>`).join('');
-}
-
-function renderForm(entry, isNew = false) {
+function renderProfileForm(entry, okText = '') {
   const v = k => esc(entry[k] || '');
-  const missing = [];
-  if (!isNew) {
-    if (!entry['Email']) missing.push('Email（下週起只能用 Email 登入）');
-    if (!entry['歌名']) missing.push('初賽曲目');
-    if (!entry.photo) missing.push('照片');
-  }
+  const missing = [!entry['Email'] && 'Email', !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
   app.className = 'wrap';
-  app.innerHTML = header() + `
+  app.innerHTML = head() + `
     <div class="card">
-      <h2>${isNew ? '新報名' : '報名資料　<span class="chip">' + esc(entry.id) + '</span><span class="chip">' + esc(entry.status) + '</span>'}</h2>
-      ${missing.length ? `<div class="notice">請補上：${missing.map(esc).join('、')}</div>` : ''}
+      <div class="row">
+        ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="">` : ''}
+        <div class="grow"><div class="name" style="font-size:18px">${esc(entry.name)}</div><div class="meta">${esc(entry.id)}・${esc(entry.zone)}・${esc(entry.club)}</div></div>
+      </div>
+      ${okText ? `<p class="msg ok">${esc(okText)}</p>` : missing.length ? `<div class="banner" style="margin:12px 0 0">還缺：${missing.join('、')}</div>` : ''}
       <form id="f">
-        <label>所屬社名</label>
-        <select id="社名" required>${clubOptions(entry['社名'])}</select>
-        <div class="row2">
-          <div><label>歌手本名</label><input id="歌手1本名" type="text" required value="${v('歌手1本名')}"></div>
-          <div><label>稱謂 <span class="opt">選填</span></label><input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}"></div>
-          <div><label>合唱者本名 <span class="opt">選填</span></label><input id="歌手2本名" type="text" value="${v('歌手2本名')}"></div>
-          <div><label>合唱者稱謂 <span class="opt">選填</span></label><input id="歌手2稱謂" type="text" value="${v('歌手2稱謂')}"></div>
-          <div><label>初賽曲目</label><input id="歌名" type="text" value="${v('歌名')}"></div>
-          <div><label>原唱 <span class="opt">選填</span></label><input id="原唱" type="text" value="${v('原唱')}"></div>
-          <div><label>Email</label><input id="Email" type="email" required value="${v('Email')}"></div>
-          <div><label>電話 <span class="opt">選填</span></label><input id="電話" type="tel" value="${v('電話')}"></div>
-        </div>
-        <label>照片 ${entry.photo ? '<span class="opt">已上傳，重新選擇會取代</span>' : ''}</label>
-        ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="目前照片" style="margin-bottom:8px">` : ''}
+        <label for="Email">Email <span class="opt">必填，之後用來登入與查成績</span></label>
+        <input id="Email" type="email" required autocomplete="email" value="${v('Email')}" placeholder="name@example.com">
+        <label for="電話">電話 <span class="opt">選填</span></label>
+        <input id="電話" type="tel" autocomplete="tel" value="${v('電話')}">
+        <label for="歌手1稱謂">稱謂 <span class="opt">選填</span></label>
+        <input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}">
+        <label for="歌名">初賽曲目</label>
+        <input id="歌名" type="text" value="${v('歌名')}">
+        <label for="原唱">原唱 <span class="opt">選填</span></label>
+        <input id="原唱" type="text" value="${v('原唱')}">
+        <label for="歌手2本名">合唱者本名 <span class="opt">沒有合唱者請留空</span></label>
+        <input id="歌手2本名" type="text" value="${v('歌手2本名')}">
+        <label for="歌手2稱謂">合唱者稱謂 <span class="opt">選填</span></label>
+        <input id="歌手2稱謂" type="text" value="${v('歌手2稱謂')}">
+        <label for="photo">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
         <input id="photo" type="file" accept="image/*">
-        <label>音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
+        <label for="audio">音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
-        <button class="full" id="save">${isNew ? '送出報名' : '儲存'}</button>
+        <button class="full" style="margin-top:18px" id="save">儲存</button>
         <p class="msg" id="m"></p>
       </form>
     </div>
-    <button class="ghost" id="out">登出</button>`;
-
-  document.getElementById('out').onclick = () => renderLogin();
-  const m = document.getElementById('m'), save = document.getElementById('save');
-  document.getElementById('f').onsubmit = async e => {
+    <p class="center"><a href="#" style="color:var(--muted)">完成，回首頁</a></p>`;
+  const m = $('#m'), save = $('#save');
+  $('#f').onsubmit = async e => {
     e.preventDefault();
     const data = {};
-    ['社名', '歌手1本名', '歌手1稱謂', '歌手2本名', '歌手2稱謂', '歌名', '原唱', 'Email', '電話']
-      .forEach(k => data[k] = document.getElementById(k).value.trim());
+    ['Email', '電話', '歌手1稱謂', '歌名', '原唱', '歌手2本名', '歌手2稱謂'].forEach(k => data[k] = document.getElementById(k).value.trim());
     save.disabled = true;
     try {
+      const photo = $('#photo').files[0], audio = $('#audio').files[0];
+      if (audio && audio.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
+      const payload = { id: entry.id, token: entry.token, data };
       setMsg(m, '處理檔案中…');
-      const photoFile = document.getElementById('photo').files[0];
-      const audioFile = document.getElementById('audio').files[0];
-      if (audioFile && audioFile.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
-      const payload = { data };
-      if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
-      if (photoFile) payload.photo = await shrinkImage(photoFile);
-      if (audioFile) payload.audio = { name: audioFile.name, data: await readDataUrl(audioFile) };
+      if (photo) payload.photo = await shrinkImage(photo);
+      if (audio) payload.audio = { name: audio.name, data: await readDataUrl(audio) };
       setMsg(m, '上傳中，請稍候…');
       const r = await api('save', payload);
-      renderForm(r.entry);
-      setMsg(document.getElementById('m'), isNew ? `報名成功！你的報名編號是 ${r.entry.id}` : '已儲存', 'ok');
+      renderProfileForm(r.entry, '已儲存。下次請用 ' + r.entry['Email'] + ' 登入。');
+      window.scrollTo(0, 0);
     } catch (err) { setMsg(m, err.message, 'err'); save.disabled = false; }
   };
 }
@@ -195,7 +334,6 @@ function readDataUrl(file) {
   return new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(new Error('讀取檔案失敗')); r.readAsDataURL(file); });
 }
 
-// 照片縮到長邊 1600px 以內再上傳，避免手機原圖太大傳不上去。
 async function shrinkImage(file) {
   const url = await readDataUrl(file);
   const img = await new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => fail(new Error('無法讀取這張照片，請換一張')); i.src = url; });
@@ -206,102 +344,317 @@ async function shrinkImage(file) {
   return { name: file.name.replace(/\.[^.]+$/, '') + '.jpg', data: c.toDataURL('image/jpeg', 0.85) };
 }
 
-// ---------- 評審 ----------
+// =================== 評審 ===================
+// 分數先存進手機的 outbox，再背景送到伺服器；斷線時保留，恢復後自動補送。
 
-let judgeState = null;
+const J = { jt: '', data: null, filter: 'all', idx: 0, dirty: false, outbox: {}, flushing: false, lastError: '' };
+const jKey = () => 'sing:judge:' + J.jt;
 
-async function renderJudge(jt) {
-  app.className = 'wrap wide';
+async function startJudge(jt) {
+  J.jt = jt;
+  const saved = store(jKey()) || {};
+  J.outbox = saved.outbox || {};
+  app.className = 'wrap';
+  app.innerHTML = head() + '<p class="sub">載入中…</p>';
   try {
-    judgeState = { jt, filter: 'todo', q: '', ...(await api('judge', { jt })) };
+    J.data = await api('judge', { jt });
+    store(jKey(), { outbox: J.outbox, data: J.data });
   } catch (err) {
-    app.innerHTML = header() + `<div class="card"><p class="msg err">${esc(err.message)}</p></div>`;
-    return;
+    if (err instanceof NetError && saved.data) { J.data = saved.data; J.lastError = '目前離線，顯示上次載入的名單'; }
+    else { app.innerHTML = head() + `<div class="banner err">${esc(err.message)}</div>`; return; }
   }
-  drawJudge();
+  window.addEventListener('online', flushOutbox);
+  window.addEventListener('beforeunload', e => { if (J.dirty || Object.keys(J.outbox).length) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('hashchange', judgeRoute);
+  setInterval(flushOutbox, 15000);
+  flushOutbox();
+  judgeRoute();
 }
 
-function drawJudge() {
-  const s = judgeState;
-  const done = s.entries.filter(x => x.score).length;
-  const q = s.q.trim().toLowerCase();
-  const list = s.entries.filter(x =>
-    (s.filter === 'all' || (s.filter === 'done') === !!x.score) &&
-    (!q || [x.id, x.club, x.singers, x.song].join(' ').toLowerCase().includes(q)));
-  const crit = s.criteria;
+function judgeRoute() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  const i = J.data.entries.findIndex(e => e.id === id);
+  if (i >= 0) { J.idx = i; drawScore(); } else drawList();
+}
 
-  app.innerHTML = header(`　評審：${esc(s.judge)}`) + `
-    <div class="bar">
-      <span class="chip">已評 ${done} / ${s.entries.length}</span>
-      <button class="${s.filter === 'todo' ? '' : 'ghost'}" data-f="todo">未評分</button>
-      <button class="${s.filter === 'done' ? '' : 'ghost'}" data-f="done">已評分</button>
-      <button class="${s.filter === 'all' ? '' : 'ghost'}" data-f="all">全部</button>
-      <input class="grow" id="q" type="text" placeholder="搜尋編號、社名、姓名、歌名" value="${esc(s.q)}">
+function go(hash) {
+  if (J.dirty && !confirm('這位的分數還沒儲存，確定要離開嗎？')) return false;
+  J.dirty = false;
+  if (location.hash === hash || (hash === '#' && !location.hash)) judgeRoute(); else location.hash = hash;
+  return true;
+}
+
+function entryState(e) {
+  if (J.outbox[e.id]) return 'pending';
+  return e.score ? 'done' : 'todo';
+}
+
+function shownScore(e) {
+  const p = J.outbox[e.id];
+  if (p) return { items: p.items, comment: p.comment, total: sumItems(p.items) };
+  return e.score;
+}
+
+function sumItems(items) { return Math.round(J.data.criteria.reduce((s, c) => s + (Number(items[c.name]) || 0), 0) * 100) / 100; }
+
+function statusLine() {
+  const n = Object.keys(J.outbox).length;
+  if (J.lastError && n) return `<div class="banner err">${n} 筆分數尚未送出：${esc(J.lastError)}<br><button class="link" id="retry" style="padding:4px 0">立即重試</button></div>`;
+  if (n) return `<div class="banner">${n} 筆分數傳送中…</div>`;
+  if (J.lastError) return `<div class="banner">${esc(J.lastError)}</div>`;
+  return '';
+}
+
+function bindRetry() { const r = $('#retry'); if (r) r.onclick = () => { J.lastError = ''; flushOutbox(); }; }
+
+function drawList() {
+  window.scrollTo(0, 0);
+  const d = J.data, list = d.entries;
+  const done = list.filter(e => entryState(e) !== 'todo').length;
+  const counts = { all: list.length, todo: list.length - done, done };
+  const shown = list.map((e, i) => [e, i]).filter(([e]) => J.filter === 'all' || (J.filter === 'todo') === (entryState(e) === 'todo'));
+  const firstTodo = list.findIndex(e => entryState(e) === 'todo');
+  app.className = 'wrap';
+  app.innerHTML = `
+    <div class="sticky">
+      <div class="row"><div class="grow"><h1 style="margin:0">評審：${esc(d.judge)}</h1><div class="meta">${esc(d.stage)}・已評 ${done} / ${list.length}</div></div></div>
+      <div class="bar ${done === list.length ? 'ok' : ''}" style="margin-top:8px"><i style="width:${list.length ? done / list.length * 100 : 0}%"></i></div>
     </div>
-    ${crit.some(c => c.note) ? `<div class="card"><strong>評分項目</strong><br>${crit.map(c => `${esc(c.name)}（滿分 ${c.max}）${c.note ? '：' + esc(c.note) : ''}`).join('<br>')}</div>` : ''}
-    ${list.length ? '' : '<div class="card"><p class="sub" style="margin:0">這個分類沒有參賽者</p></div>'}
-    ${list.map(x => `
-      <div class="card ${x.score ? 'done' : ''}" data-id="${esc(x.id)}">
-        <div class="entry">
-          ${x.photoId ? `<img class="thumb" loading="lazy" src="${thumbUrl(x.photoId)}" alt="">` : '<div class="thumb"></div>'}
-          <div>
-            <div><span class="chip">${esc(x.id)}</span><span class="chip">${esc(x.zone)}</span>${esc(x.club)}</div>
-            <div style="font-size:18px;font-weight:700;margin:4px 0">${esc(x.singers)}</div>
-            <div>${esc(x.song || '尚未提供曲目')}${x.artist ? '　<span class="sub">原唱：' + esc(x.artist) + '</span>' : ''}</div>
-            ${x.audio ? `<div class="links"><a href="${esc(x.audio)}" target="_blank" rel="noopener">開啟音檔</a></div>` : ''}
-            <form class="sf">
-              <div class="scores">
-                ${crit.map(c => `<div><label>${esc(c.name)} <span class="opt">/ ${c.max}</span></label>
-                  <input type="number" inputmode="decimal" min="0" max="${c.max}" step="0.5" required name="${esc(c.name)}"
-                    value="${x.score && x.score.items[c.name] !== undefined && x.score.items[c.name] !== '' ? esc(x.score.items[c.name]) : ''}"></div>`).join('')}
-              </div>
-              <label>評語 <span class="opt">選填</span></label>
-              <textarea name="_comment">${esc(x.score ? x.score.comment : '')}</textarea>
-              <div class="bar" style="margin:12px 0 0">
-                <button>${x.score ? '更新分數' : '送出分數'}</button>
-                <span class="total">${x.score ? '總分 ' + esc(x.score.total) : ''}</span>
-                <span class="msg" style="margin:0"></span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>`).join('')}`;
-
-  app.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { s.filter = b.dataset.f; drawJudge(); });
-  const qi = document.getElementById('q');
-  qi.oninput = () => { s.q = qi.value; const pos = qi.selectionStart; drawJudge(); const n = document.getElementById('q'); n.focus(); n.setSelectionRange(pos, pos); };
-  app.querySelectorAll('form.sf').forEach(f => f.onsubmit = async e => {
-    e.preventDefault();
-    const card = f.closest('[data-id]'), id = card.dataset.id;
-    const btn = f.querySelector('button'), m = f.querySelector('.msg');
-    const items = {};
-    crit.forEach(c => items[c.name] = f.elements[c.name].value);
-    btn.disabled = true; setMsg(m, '儲存中…');
-    try {
-      const r = await api('score', { jt: s.jt, id, items, comment: f.elements._comment.value });
-      const x = s.entries.find(e => e.id === id);
-      x.score = { items, total: r.total, comment: f.elements._comment.value };
-      card.classList.add('done');
-      f.querySelector('.total').textContent = '總分 ' + r.total;
-      btn.textContent = '更新分數';
-      setMsg(m, '已儲存', 'ok');
-      app.querySelector('.bar .chip').textContent = `已評 ${s.entries.filter(e => e.score).length} / ${s.entries.length}`;
-    } catch (err) { setMsg(m, err.message, 'err'); }
-    btn.disabled = false;
-  });
+    ${d.scoringOpen ? '' : '<div class="banner err">評分已關閉，只能查看，無法修改分數。</div>'}
+    ${statusLine()}
+    ${firstTodo >= 0 && d.scoringOpen ? `<button class="full" id="next" style="margin-bottom:4px">從第 ${firstTodo + 1} 位（${esc(list[firstTodo].singers)}）開始評分</button>` : ''}
+    ${done === list.length && list.length ? '<div class="banner" style="background:var(--ok-bg);color:var(--ok)">全部評完了，辛苦了。點任何一位可以修改分數。</div>' : ''}
+    <div class="tabs">
+      ${[['all', '全部'], ['todo', '未評'], ['done', '已評']].map(([k, t]) => `<button class="${J.filter === k ? '' : 'ghost'}" data-f="${k}">${t} ${counts[k]}</button>`).join('')}
+    </div>
+    <div class="list">${shown.length ? shown.map(([e, i]) => {
+      const st = entryState(e), sc = shownScore(e);
+      const badge = st === 'todo' ? '<span class="chip">未評</span>' : st === 'pending' ? `<span class="chip warn">${fmt(sc.total)} 傳送中</span>` : `<span class="chip ok">${fmt(sc.total)}</span>`;
+      return `<div class="item" data-id="${esc(e.id)}"><div class="num">${e.order !== '' ? esc(e.order) : i + 1}</div>
+        <div class="grow"><div class="name ellipsis">${esc(e.singers)}</div><div class="meta ellipsis">${esc(e.club)}・${esc(e.song || '曲目未定')}</div></div>${badge}</div>`;
+    }).join('') : '<div class="item" style="cursor:default"><span class="meta">這個分類沒有參賽者</span></div>'}</div>`;
+  app.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { J.filter = b.dataset.f; drawList(); });
+  app.querySelectorAll('[data-id]').forEach(el => el.onclick = () => go('#' + encodeURIComponent(el.dataset.id)));
+  const nx = $('#next'); if (nx) nx.onclick = () => go('#' + encodeURIComponent(list[firstTodo].id));
+  bindRetry();
 }
 
-// ---------- 啟動 ----------
+function drawScore() {
+  window.scrollTo(0, 0);
+  const d = J.data, list = d.entries, e = list[J.idx], sc = shownScore(e) || { items: {}, comment: '' };
+  const ro = !d.scoringOpen;
+  const isLast = J.idx === list.length - 1;
+  J.dirty = false;
+  app.className = 'wrap';
+  app.innerHTML = `
+    <div class="sticky">
+      <div class="nav">
+        <button class="ghost" id="toList">‹ 名單</button>
+        <span class="meta">${J.idx + 1} / ${list.length}</span>
+        <span><button class="ghost" id="prev" ${J.idx === 0 ? 'disabled' : ''} aria-label="上一位">‹</button>
+        <button class="ghost" id="nextP" ${isLast ? 'disabled' : ''} aria-label="下一位">›</button></span>
+      </div>
+    </div>
+    ${ro ? '<div class="banner err">評分已關閉，只能查看。</div>' : ''}
+    <div id="status">${statusLine()}</div>
+    <div class="card">
+      <div class="row">
+        ${e.photoId ? `<img class="thumb" src="${thumbUrl(e.photoId)}" alt="">` : '<div class="thumb"></div>'}
+        <div class="grow">
+          <div class="meta">${e.order !== '' ? '出場 ' + esc(e.order) + '・' : ''}${esc(e.id)}・${esc(e.club)}</div>
+          <div class="name" style="font-size:20px;line-height:1.3">${esc(e.singers)}</div>
+          <div>${esc(e.song || '曲目未定')}${e.artist ? ' <span class="meta">／' + esc(e.artist) + '</span>' : ''}</div>
+          ${e.audio ? `<a class="small" href="${esc(e.audio)}" target="_blank" rel="noopener" style="color:var(--primary)">開啟音檔</a>` : ''}
+        </div>
+      </div>
+    </div>
+    <form id="sf" class="card" novalidate>
+      ${d.criteria.map((c, k) => `
+        <div class="crit" data-k="${k}">
+          <div class="lab">${esc(c.name)}<small>滿分 ${c.max}${c.note ? '・' + esc(c.note) : ''}</small></div>
+          <div class="step">
+            <button type="button" data-d="-1" aria-label="${esc(c.name)}減 0.5" ${ro ? 'disabled' : ''}>−</button>
+            <input type="text" inputmode="decimal" name="c${k}" aria-label="${esc(c.name)}分數" placeholder="—" ${ro ? 'readonly' : ''}
+              value="${sc.items[c.name] === '' || sc.items[c.name] == null ? '' : esc(sc.items[c.name])}">
+            <button type="button" data-d="1" aria-label="${esc(c.name)}加 0.5" ${ro ? 'disabled' : ''}>＋</button>
+          </div>
+          <div class="err"></div>
+        </div>`).join('')}
+      <label for="cm" style="margin-top:10px">評語 <span class="opt">選填・公布後選手看得到</span></label>
+      <textarea id="cm" ${ro ? 'readonly' : ''} placeholder="給選手的建議">${esc(sc.comment || '')}</textarea>
+    </form>
+    <div class="actionbar"><div class="in">
+      <div class="total grow">總分 <b id="tot">—</b> / ${d.criteria.reduce((s, c) => s + c.max, 0)}</div>
+      ${ro ? '' : `<button id="save">${isLast ? '儲存' : '儲存，下一位'}</button>`}
+    </div></div>`;
+
+  const form = $('#sf');
+  const inputs = d.criteria.map((c, k) => form.elements['c' + k]);
+  const parse = v => { v = String(v).trim(); return v === '' ? null : Number(v); };
+  const check = k => {
+    const c = d.criteria[k], v = parse(inputs[k].value), box = form.querySelector(`[data-k="${k}"]`);
+    let err = '';
+    if (v === null) err = '';
+    else if (isNaN(v) || v < 0 || v > c.max) err = `請填 0 到 ${c.max}`;
+    else if (Math.round(v * 2) !== v * 2) err = '最小單位是 0.5';
+    box.classList.toggle('bad', !!err); box.querySelector('.err').textContent = err;
+    return !err;
+  };
+  const refresh = () => {
+    const vals = inputs.map(i => parse(i.value));
+    $('#tot').textContent = vals.some(v => v === null || isNaN(v)) ? (vals.every(v => v === null) ? '—' : fmt(vals.reduce((s, v) => s + (Number(v) || 0), 0)) + '…') : fmt(vals.reduce((s, v) => s + v, 0));
+  };
+  inputs.forEach((inp, k) => {
+    inp.oninput = () => { J.dirty = true; check(k); refresh(); };
+    inp.onfocus = () => inp.select();
+  });
+  form.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
+    const k = Number(b.closest('.crit').dataset.k), c = d.criteria[k], inp = inputs[k];
+    let v = parse(inp.value);
+    // 空白時從滿分 7 成開始，避免從 0 一路按上去
+    if (v === null || isNaN(v)) v = Math.round(c.max * 0.7 * 2) / 2;
+    else v = Math.min(c.max, Math.max(0, Math.round((v + Number(b.dataset.d) * 0.5) * 2) / 2));
+    inp.value = v; J.dirty = true; check(k); refresh();
+  });
+  $('#cm').oninput = () => { J.dirty = true; };
+  refresh();
+
+  $('#toList').onclick = () => go('#');
+  $('#prev').onclick = () => J.idx > 0 && go('#' + encodeURIComponent(list[J.idx - 1].id));
+  $('#nextP').onclick = () => !isLast && go('#' + encodeURIComponent(list[J.idx + 1].id));
+  bindRetry();
+
+  const save = $('#save');
+  if (save) save.onclick = () => {
+    let ok = true, firstBad = null;
+    inputs.forEach((inp, k) => {
+      const box = form.querySelector(`[data-k="${k}"]`);
+      if (parse(inp.value) === null) { box.classList.add('bad'); box.querySelector('.err').textContent = '請填分數'; ok = false; }
+      else if (!check(k)) ok = false;
+      if (!ok && firstBad === null) firstBad = inp;
+    });
+    if (!ok) { firstBad.focus(); return; }
+    const items = {};
+    d.criteria.forEach((c, k) => items[c.name] = parse(inputs[k].value));
+    J.outbox[e.id] = { items, comment: $('#cm').value.trim(), ts: Date.now() };
+    store(jKey(), { outbox: J.outbox, data: J.data });
+    J.dirty = false;
+    toast(`${e.singers} 總分 ${fmt(sumItems(items))} 已儲存`);
+    flushOutbox();
+    if (isLast) go('#'); else go('#' + encodeURIComponent(list[J.idx + 1].id));
+  };
+}
+
+async function flushOutbox() {
+  if (J.flushing || !J.data) return;
+  const ids = Object.keys(J.outbox);
+  if (!ids.length) return;
+  J.flushing = true;
+  try {
+    for (const id of ids) {
+      const p = J.outbox[id];
+      try {
+        const r = await api('score', { jt: J.jt, id, items: p.items, comment: p.comment });
+        const e = J.data.entries.find(x => x.id === id);
+        if (e) e.score = { items: p.items, comment: p.comment, total: r.total };
+        if (J.outbox[id] && J.outbox[id].ts === p.ts) delete J.outbox[id];
+        J.lastError = '';
+      } catch (err) {
+        J.lastError = err.message;
+        if (err instanceof NetError) break;
+      }
+    }
+  } finally {
+    J.flushing = false;
+    store(jKey(), { outbox: J.outbox, data: J.data });
+    // 名單頁直接重畫；評分頁只更新狀態列，避免打斷正在輸入的評審
+    const st = $('#status');
+    if (st) { st.innerHTML = statusLine(); bindRetry(); } else if (!J.dirty) judgeRoute();
+  }
+}
+
+// =================== 主辦 ===================
+
+const A = { at: '', data: null, timer: null, view: 'rank' };
+
+async function startAdmin(at) {
+  A.at = at;
+  app.className = 'wrap wide';
+  app.innerHTML = head() + '<p class="sub">載入中…</p>';
+  await loadAdmin();
+  A.timer = setInterval(loadAdmin, 30000);
+}
+
+async function loadAdmin() {
+  try {
+    A.data = await api('admin', { at: A.at });
+    A.data.loadedAt = new Date();
+    A.err = '';
+  } catch (err) {
+    A.err = err.message;
+    if (!A.data) { app.innerHTML = head() + `<div class="banner err">${esc(err.message)}</div>`; clearInterval(A.timer); return; }
+  }
+  drawAdmin();
+}
+
+function drawAdmin() {
+  const d = A.data, total = d.total;
+  const allDone = d.judges.every(j => j.done === total);
+  const ranked = d.results.filter(r => r.rank !== '').sort((a, b) => a.rank - b.rank);
+  const unranked = d.results.filter(r => r.rank === '');
+  const chip = (on, a, b) => `<span class="chip ${on ? 'ok' : ''}">${on ? a : b}</span>`;
+  const t = d.loadedAt;
+  app.innerHTML = `
+    <h1>主辦即時名次</h1>
+    <p class="sub">${esc(d.stage)}・每 30 秒自動更新・最後更新 ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}
+      <button class="link" id="reload">立即更新</button></p>
+    ${A.err ? `<div class="banner err">更新失敗：${esc(A.err)}</div>` : ''}
+    <div class="card">
+      <div class="row" style="flex-wrap:wrap;gap:8px">${chip(d.settings.scoringOpen, '評分開放中', '評分已鎖定')}${chip(d.settings.ranksPublic, '名次已公開', '名次未公開')}${chip(d.settings.detailPublic, '細節已公開', '細節未公開')}</div>
+      <p class="meta small" style="margin:8px 0 0">要鎖分或公開，請到 Sheet 的「設定」表修改。</p>
+    </div>
+    <div class="grid" style="margin-bottom:12px">${d.judges.map(j => `
+      <div class="card" style="margin:0"><div class="row"><div class="grow name">${esc(j.name)}</div><span class="${j.done === total ? 'chip ok' : 'chip warn'}">${j.done} / ${total}</span></div>
+      <div class="bar ${j.done === total ? 'ok' : ''}" style="margin-top:8px"><i style="width:${total ? j.done / total * 100 : 0}%"></i></div></div>`).join('')}</div>
+    ${allDone ? '' : '<div class="banner">還有評審沒評完，下面的名次會繼續變動。</div>'}
+    ${ranked.some(r => r.tie) ? '<div class="banner err">有參賽者四項平均完全相同，名次並列，請現場決定如何處理。</div>' : ''}
+    <div class="list">${ranked.map(r => `
+      <div class="item" style="cursor:default;align-items:flex-start">
+        <div class="rank ${r.rank <= 3 ? 'top' : ''}">${r.rank}</div>
+        <div class="grow">
+          <div class="row" style="gap:8px;flex-wrap:wrap"><span class="name">${esc(r.singers)}</span>${r.tie ? '<span class="chip err">同分</span>' : ''}${r.judges < d.judges.length ? `<span class="chip warn">${r.judges}/${d.judges.length} 位評審</span>` : ''}</div>
+          <div class="meta">${r.order !== '' ? '出場 ' + esc(r.order) + '・' : ''}${esc(r.club)}・${esc(r.song || '')}</div>
+          <div class="meta small">${d.criteria.map(c => `${esc(c.name.split('／')[0])} ${fmt(r.items[c.name])}`).join('・')}</div>
+        </div>
+        <div style="text-align:right"><div class="stat" style="font-size:24px">${fmt(r.total)}</div><div class="meta small">總分</div></div>
+      </div>`).join('') || '<div class="item" style="cursor:default"><span class="meta">還沒有任何評分</span></div>'}</div>
+    ${unranked.length ? `<p class="meta" style="margin-top:12px">尚未有評分：${unranked.map(r => esc(r.singers)).join('、')}</p>` : ''}`;
+  $('#reload').onclick = loadAdmin;
+}
+
+// =================== 啟動 ===================
+
+function homeRoute() {
+  const h = location.hash;
+  if (h === '#ranks') renderRanks();
+  else if (h === '#me') renderMe();
+  else if (h === '#profile') renderProfileLogin();
+  else renderHome();
+  window.scrollTo(0, 0);
+}
 
 (async () => {
-  const jt = new URLSearchParams(location.search).get('judge');
   try {
     cfg = await api('config');
   } catch (err) {
-    app.innerHTML = `<h1>2026-27年度 歌唱大賽</h1><div class="card"><p class="msg err">系統暫時無法連線：${esc(err.message)}</p></div>`;
-    return;
+    if (!(params.get('judge') && err instanceof NetError)) {
+      app.innerHTML = `<h1>${TITLE}</h1><div class="banner err">系統暫時無法連線：${esc(err.message)}</div>`;
+      return;
+    }
   }
-  if (jt) renderJudge(jt); else renderLogin();
+  if (params.get('judge')) startJudge(params.get('judge'));
+  else if (params.get('admin')) startAdmin(params.get('admin'));
+  else { window.addEventListener('hashchange', homeRoute); homeRoute(); }
 })();
 </script>
 </body>
