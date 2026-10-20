@@ -31,7 +31,7 @@
   a.card:active { background: var(--soft); }
   label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 4px; }
   .opt { font-weight: 400; color: var(--muted); font-size: 13px; }
-  input[type=text], input[type=email], input[type=tel], textarea {
+  input[type=text], input[type=email], input[type=tel], select, textarea {
     width: 100%; padding: 11px 12px; font: inherit; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); }
   input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
   textarea { min-height: 72px; resize: vertical; }
@@ -151,7 +151,8 @@ function renderHome() {
   const cards = [];
   if (cfg.ranksPublic) cards.push(['#ranks', '名次公告', '查看本次比賽的完整名次']);
   if (cfg.detailPublic) cards.push(['#me', '查詢我的成績', '輸入 Email，查看各項分數與評審評語']);
-  if (cfg.profileOpen) cards.push(['#profile', '補填參賽資料', '補上 Email、電話、曲目或照片']);
+  if (cfg.regOpen) cards.push(['#register', '我要報名', '還沒報名的新參賽者從這裡報名']);
+  if (cfg.profileOpen) cards.push(['#profile', '補填／修改參賽資料', '已報名的人補上 Email、身份、曲目或照片']);
   app.innerHTML = head() + (cards.length
     ? cards.map(([h, t, d]) => `<a class="card" href="${h}"><div class="row"><div class="grow"><div class="name">${t}</div><div class="meta">${d}</div></div><span aria-hidden="true">›</span></div></a>`).join('')
     : `<div class="card center"><p style="margin:8px 0">成績尚未公布，請留意主辦單位通知。</p></div>`);
@@ -224,13 +225,19 @@ function resultCard(x, criteria, stage) {
 
 // =================== 補填參賽資料 ===================
 
+function renderRegister() {
+  if (cfg.regOpen) return renderProfileForm({ as: 1 }, '', true);
+  app.className = 'wrap';
+  app.innerHTML = head() + backLink() + '<div class="card center">報名已截止</div>';
+}
+
 function renderProfileLogin() {
   app.className = 'wrap';
   if (!cfg.profileOpen) { app.innerHTML = head() + backLink() + '<div class="card center">補資料已截止</div>'; return; }
   const emailOnly = cfg.loginMode === '僅Email';
   app.innerHTML = head() + backLink() + `
     <div class="card">
-      <h2>補填參賽資料</h2>
+      <h2>補填／修改參賽資料</h2>
       <form id="f">
         <label for="key">${emailOnly ? 'Email' : '本名或 Email'}</label>
         <input id="key" type="${emailOnly ? 'email' : 'text'}" required autocomplete="username"
@@ -239,7 +246,8 @@ function renderProfileLogin() {
         <button class="full" style="margin-top:14px" id="go">登入</button>
         <p class="msg" id="m"></p>
       </form>
-    </div>`;
+    </div>
+    ${cfg.regOpen ? '<p class="center"><a href="#register" style="color:var(--primary)">還沒報名？我要報名</a></p>' : ''}`;
   const m = $('#m'), go = $('#go');
   $('#f').onsubmit = async e => {
     e.preventDefault();
@@ -248,29 +256,72 @@ function renderProfileLogin() {
       const r = await api('login', { key: $('#key').value.trim() });
       if (r.entries.length === 1) return renderProfileForm(r.entries[0]);
       app.innerHTML = head() + `<div class="card"><h2>找到 ${r.entries.length} 筆，請選擇</h2><div class="list">${r.entries.map((x, i) =>
-        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x.name)}</div><div class="meta">${esc(x.id)}・${esc(x.club)}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
+        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x['歌手1本名'])}</div><div class="meta">${esc(x.id)}・${esc(x['社名'])}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
       app.querySelectorAll('[data-i]').forEach(el => el.onclick = () => renderProfileForm(r.entries[el.dataset.i]));
     } catch (err) { setMsg(m, err.message, 'err'); go.disabled = false; }
   };
 }
 
-function renderProfileForm(entry, okText = '') {
+function zoneOf(club) { const c = cfg.clubs.find(x => x.club === club); return c ? c.zone : ''; }
+function zoneOptions(sel) {
+  const zones = [...new Set(cfg.clubs.map(c => c.zone))];
+  return '<option value="">請選擇分區</option>' + zones.map(z => `<option${z === sel ? ' selected' : ''}>${esc(z)}</option>`).join('');
+}
+function clubOptions(zone, sel) {
+  const list = cfg.clubs.filter(c => c.zone === zone);
+  return `<option value="">${zone ? '請選擇社名' : '請先選分區'}</option>` + list.map(c => `<option${c.club === sel ? ' selected' : ''}>${esc(c.club)}</option>`).join('');
+}
+function idOptions(sel) {
+  return '<option value="">請選擇身份</option>' + cfg.identities.map(x => `<option${x === sel ? ' selected' : ''}>${esc(x)}</option>`).join('');
+}
+
+// 新報名和補資料共用：isNew 時沒有 id，送出後就成為正式報名。
+function renderProfileForm(entry, okText = '', isNew = false) {
   const v = k => esc(entry[k] || '');
   const me = entry.as === 2 ? 2 : 1;
   const myEmailKey = me === 2 ? '歌手2Email' : 'Email';
-  const myName = me === 2 ? entry['歌手2本名'] : entry.name;
-  const missing = [!entry[myEmailKey] && '你的 Email', !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
-  const youTag = n => n === me ? ' <span class="chip ok">你</span>' : '';
+  const myName = me === 2 ? entry['歌手2本名'] : entry['歌手1本名'];
+  const missing = isNew ? [] : [!entry[myEmailKey] && '你的 Email', !entry['歌手' + me + '身份'] && '身份',
+    !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
+  const youTag = n => !isNew && n === me ? ' <span class="chip ok">你</span>' : '';
+  const zone = entry.zone || zoneOf(entry['社名']);
+  const singer = (n, title) => {
+    const k = f => (n === 1 ? { 本名: '歌手1本名', 身份: '歌手1身份', 稱謂: '歌手1稱謂', Email: 'Email', 電話: '電話' } : { 本名: '歌手2本名', 身份: '歌手2身份', 稱謂: '歌手2稱謂', Email: '歌手2Email', 電話: '歌手2電話' })[f];
+    const mine = n === me, partner = n === 2 && !mine;
+    return `<div class="card">
+      <h2>${title}${youTag(n)}</h2>
+      <label for="${k('本名')}" style="margin-top:0">本名 ${partner ? '<span class="opt">獨唱請留空</span>' : ''}</label>
+      <input id="${k('本名')}" type="text" ${partner ? '' : 'required'} value="${v(k('本名'))}">
+      <div ${partner ? 'class="duet-extra"' : ''}>
+        <label for="${k('身份')}">身份</label>
+        <select id="${k('身份')}" ${n === 1 ? 'required' : ''}>${idOptions(entry[k('身份')])}</select>
+        <label for="${k('Email')}">Email <span class="opt">${mine ? '必填，之後用來登入與查成績' : '選填，本人也可以自己登入補填'}</span></label>
+        <input id="${k('Email')}" type="email" ${mine ? 'required' : ''} autocomplete="${mine ? 'email' : 'off'}" value="${v(k('Email'))}" placeholder="name@example.com">
+        <label for="${k('電話')}">電話 <span class="opt">選填</span></label>
+        <input id="${k('電話')}" type="tel" value="${v(k('電話'))}">
+        <label for="${k('稱謂')}">稱謂 <span class="opt">選填，例如 PP Grace</span></label>
+        <input id="${k('稱謂')}" type="text" value="${v(k('稱謂'))}">
+      </div>
+    </div>`;
+  };
   app.className = 'wrap';
-  app.innerHTML = head() + `
+  app.innerHTML = head() + (isNew ? backLink() : '') + `
     <div class="card">
+      ${isNew ? '<h2 style="margin:0">我要報名</h2><p class="meta" style="margin:4px 0 0">合唱請在「合唱者」填第二位歌手。</p>' : `
       <div class="row">
         ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="">` : ''}
-        <div class="grow"><div class="name" style="font-size:18px">${esc(myName)}</div><div class="meta">${esc(entry.id)}・${esc(entry.zone)}・${esc(entry.club)}</div></div>
-      </div>
+        <div class="grow"><div class="name" style="font-size:18px">${esc(myName)}</div><div class="meta">${esc(entry.id)}・${esc(zone)}・${esc(entry['社名'])}</div></div>
+      </div>`}
       ${okText ? `<p class="msg ok">${esc(okText)}</p>` : missing.length ? `<div class="banner" style="margin:12px 0 0">還缺：${missing.join('、')}</div>` : ''}
     </div>
     <form id="f">
+      <div class="card">
+        <h2>所屬社團</h2>
+        <label for="zone" style="margin-top:0">分區</label>
+        <select id="zone" required>${zoneOptions(zone)}</select>
+        <label for="社名">社名</label>
+        <select id="社名" required>${clubOptions(zone, entry['社名'])}</select>
+      </div>
       <div class="card">
         <h2>曲目</h2>
         <label for="歌名" style="margin-top:0">初賽曲目</label>
@@ -278,26 +329,8 @@ function renderProfileForm(entry, okText = '') {
         <label for="原唱">原唱 <span class="opt">選填</span></label>
         <input id="原唱" type="text" value="${v('原唱')}">
       </div>
-      <div class="card">
-        <h2>歌手：${esc(entry.name)}${youTag(1)}</h2>
-        <label for="Email" style="margin-top:0">Email <span class="opt">${me === 1 ? '必填，之後用來登入與查成績' : '選填，可由本人自行補填'}</span></label>
-        <input id="Email" type="email" ${me === 1 ? 'required' : ''} autocomplete="${me === 1 ? 'email' : 'off'}" value="${v('Email')}" placeholder="name@example.com">
-        <label for="電話">電話 <span class="opt">選填</span></label>
-        <input id="電話" type="tel" value="${v('電話')}">
-        <label for="歌手1稱謂">稱謂 <span class="opt">選填</span></label>
-        <input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}">
-      </div>
-      <div class="card">
-        <h2>合唱者${entry['歌手2本名'] ? '：' + esc(entry['歌手2本名']) : ''}${youTag(2)}</h2>
-        ${me === 1 ? `<label for="歌手2本名" style="margin-top:0">合唱者本名 <span class="opt">獨唱請留空</span></label>
-        <input id="歌手2本名" type="text" value="${v('歌手2本名')}">` : `<input id="歌手2本名" type="hidden" value="${v('歌手2本名')}">`}
-        <label for="歌手2Email" ${me === 2 ? 'style="margin-top:0"' : ''}>Email <span class="opt">${me === 2 ? '必填，之後用來登入與查成績' : '選填，合唱者也可以自己登入補填'}</span></label>
-        <input id="歌手2Email" type="email" ${me === 2 ? 'required' : ''} autocomplete="${me === 2 ? 'email' : 'off'}" value="${v('歌手2Email')}" placeholder="name@example.com">
-        <label for="歌手2電話">電話 <span class="opt">選填</span></label>
-        <input id="歌手2電話" type="tel" value="${v('歌手2電話')}">
-        <label for="歌手2稱謂">稱謂 <span class="opt">選填</span></label>
-        <input id="歌手2稱謂" type="text" value="${v('歌手2稱謂')}">
-      </div>
+      ${singer(1, '歌手')}
+      ${singer(2, '合唱者 <span class="opt">選填</span>')}
       <div class="card">
         <h2>檔案</h2>
         <label for="photo" style="margin-top:0">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
@@ -305,30 +338,40 @@ function renderProfileForm(entry, okText = '') {
         <label for="audio">音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
       </div>
-      <button class="full" id="save">儲存</button>
+      <button class="full" id="save">${isNew ? '送出報名' : '儲存'}</button>
       <p class="msg" id="m"></p>
     </form>
-    <p class="center"><a href="#" style="color:var(--muted)">完成，回首頁</a></p>`;
+    ${isNew ? '' : '<p class="center"><a href="#" style="color:var(--muted)">完成，回首頁</a></p>'}`;
+
+  const zoneSel = $('#zone'), clubSel = document.getElementById('社名');
+  zoneSel.onchange = () => { clubSel.innerHTML = clubOptions(zoneSel.value, ''); };
+  // 合唱者沒填本名時收起其他欄位，獨唱的人不會被一堆空欄位干擾
+  const n2 = document.getElementById('歌手2本名'), extra = app.querySelector('.duet-extra');
+  if (extra) {
+    const sync = () => { extra.style.display = n2.value.trim() ? '' : 'none'; };
+    n2.oninput = sync; sync();
+  }
+
   const m = $('#m'), save = $('#save');
   $('#f').onsubmit = async e => {
     e.preventDefault();
     const data = {};
-    ['歌名', '原唱', 'Email', '電話', '歌手1稱謂', '歌手2本名', '歌手2Email', '歌手2電話', '歌手2稱謂']
-      .forEach(k => data[k] = document.getElementById(k).value.trim());
-    if (!data['歌手2本名'] && (data['歌手2Email'] || data['歌手2電話'] || data['歌手2稱謂'])) {
-      setMsg(m, '有填合唱者資料，請一併填合唱者本名', 'err'); return;
-    }
+    ['社名', '歌名', '原唱', '歌手1本名', '歌手1身份', '歌手1稱謂', 'Email', '電話',
+      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話'].forEach(k => data[k] = document.getElementById(k).value.trim());
+    if (data['歌手2本名'] && !data['歌手2身份']) { setMsg(m, '請選擇合唱者身份', 'err'); return; }
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
       if (audio && audio.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
-      const payload = { id: entry.id, token: entry.token, as: me, data };
+      const payload = { as: me, data };
+      if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
       setMsg(m, '處理檔案中…');
       if (photo) payload.photo = await shrinkImage(photo);
       if (audio) payload.audio = { name: audio.name, data: await readDataUrl(audio) };
-      setMsg(m, '上傳中，請稍候…');
+      setMsg(m, isNew ? '送出中，請稍候…' : '上傳中，請稍候…');
       const r = await api('save', payload);
-      renderProfileForm(r.entry, '已儲存。下次請用 ' + r.entry[myEmailKey] + ' 登入。');
+      const mail = r.entry[myEmailKey];
+      renderProfileForm(r.entry, isNew ? `報名成功，你的報名編號是 ${r.entry.id}。之後可以用 ${mail} 登入修改資料。` : `已儲存。下次請用 ${mail} 登入。`);
       window.scrollTo(0, 0);
     } catch (err) { setMsg(m, err.message, 'err'); save.disabled = false; }
   };
@@ -678,6 +721,7 @@ function homeRoute() {
   if (h === '#ranks') renderRanks();
   else if (h === '#me') renderMe();
   else if (h === '#profile') renderProfileLogin();
+  else if (h === '#register') renderRegister();
   else renderHome();
   window.scrollTo(0, 0);
 }
