@@ -412,6 +412,9 @@ function clubOptions(zone, sel) {
   const list = cfg.clubs.filter(c => c.zone === zone);
   return `<option value="">${zone ? '請選擇社名' : '請先選分區'}</option>` + list.map(c => `<option${c.club === sel ? ' selected' : ''}>${esc(c.club)}</option>`).join('');
 }
+function langOptions(sel) {
+  return '<option value="">請選擇語種</option>' + cfg.langs.map(x => `<option${x === sel ? ' selected' : ''}>${esc(x)}</option>`).join('');
+}
 function idOptions(sel) {
   return '<option value="">請選擇身份</option>' + cfg.identities.map(x => `<option${x === sel ? ' selected' : ''}>${esc(x)}</option>`).join('');
 }
@@ -423,7 +426,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
   const myEmailKey = me === 2 ? '歌手2Email' : 'Email';
   const myName = me === 2 ? entry['歌手2本名'] : entry['歌手1本名'];
   const missing = isNew ? [] : [!entry[myEmailKey] && '你的 Email', !entry['歌手' + me + '身份'] && '身份',
-    !entry['歌名'] && '初賽曲目', entry.advanced && !entry['決賽曲目'] && '決賽曲目', !entry.photo && '照片'].filter(Boolean);
+    !entry['歌名'] && '初賽曲目', entry['歌名'] && !entry['初賽語種'] && '初賽語種', entry.advanced && !entry['決賽曲目'] && '決賽曲目', !entry.photo && '照片'].filter(Boolean);
   const youTag = n => !isNew && n === me ? ' <span class="chip ok">你</span>' : '';
   const zone = entry.zone || zoneOf(entry['社名']);
   const singer = (n, title) => {
@@ -467,8 +470,10 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       </div>
       <div class="card">
         <h2>初賽曲目</h2>
-        <label for="歌名" style="margin-top:0">歌名 <span class="opt">英、日、國、台語歌曲</span></label>
+        <label for="歌名" style="margin-top:0">歌名 <span class="opt">限英、日、國、台語歌曲</span></label>
         <input id="歌名" type="text" value="${v('歌名')}">
+        <label for="初賽語種">語種</label>
+        <select id="初賽語種">${langOptions(entry['初賽語種'])}</select>
         <label for="原唱">原唱 <span class="opt">選填</span></label>
         <input id="原唱" type="text" value="${v('原唱')}">
       </div>
@@ -476,6 +481,8 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <h2>決賽曲目 <span class="chip gold">晉級者填寫</span></h2>
         <label for="決賽曲目" style="margin-top:0">歌名 <span class="opt">不得與初賽曲目重複</span></label>
         <input id="決賽曲目" type="text" value="${v('決賽曲目')}">
+        <label for="決賽語種">語種</label>
+        <select id="決賽語種">${langOptions(entry['決賽語種'])}</select>
         <label for="決賽原唱">原唱 <span class="opt">選填</span></label>
         <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
       </div>` : ''}
@@ -507,9 +514,11 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     e.preventDefault();
     const data = {};
     ['社名', '歌名', '原唱', '歌手1本名', '歌手1身份', '歌手1稱謂', 'Email', '電話',
-      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話', '決賽曲目', '決賽原唱']
+      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話', '初賽語種', '決賽曲目', '決賽原唱', '決賽語種']
       .forEach(k => { const el = document.getElementById(k); if (el) data[k] = el.value.trim(); });
     if (data['歌手2本名'] && !data['歌手2身份']) { setMsg(m, '請選擇合唱者身份', 'err'); return; }
+    if (data['歌名'] && !data['初賽語種']) { setMsg(m, '請選擇初賽曲目的語種', 'err'); return; }
+    if (data['決賽曲目'] && !data['決賽語種']) { setMsg(m, '請選擇決賽曲目的語種', 'err'); return; }
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
@@ -663,7 +672,7 @@ function drawScore() {
         <div class="grow">
           <div class="meta">${e.order !== '' ? '出場 ' + esc(e.order) + '・' : ''}${esc(e.id)}・${esc(e.club)}</div>
           <div class="name" style="font-size:20px;line-height:1.3;font-family:var(--serif)">${esc(e.singers)}</div>
-          <div>${esc(e.song || '曲目未定')}${e.artist ? ' <span class="meta">／' + esc(e.artist) + '</span>' : ''}</div>
+          <div>${esc(e.song || '曲目未定')}${e.artist ? ' <span class="meta">／' + esc(e.artist) + '</span>' : ''}${e.lang ? ' <span class="chip">' + esc(e.lang) + '</span>' : ''}</div>
           ${e.audio ? `<a class="small" href="${esc(e.audio)}" target="_blank" rel="noopener">開啟音檔</a>` : ''}
         </div>
       </div>
