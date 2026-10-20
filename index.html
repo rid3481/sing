@@ -184,7 +184,7 @@ function renderMe() {
     <div class="card" id="ask">
       <h2>查詢我的成績</h2>
       <form id="f">
-        <label for="em">補資料時填的 Email</label>
+        <label for="em">補資料時填的 Email <span class="opt">合唱者用自己的 Email 也可以</span></label>
         <input id="em" type="email" required autocomplete="email" placeholder="name@example.com" value="${esc(saved)}">
         <button class="full" style="margin-top:14px" id="b">查詢</button>
       </form>
@@ -248,7 +248,7 @@ function renderProfileLogin() {
       const r = await api('login', { key: $('#key').value.trim() });
       if (r.entries.length === 1) return renderProfileForm(r.entries[0]);
       app.innerHTML = head() + `<div class="card"><h2>找到 ${r.entries.length} 筆，請選擇</h2><div class="list">${r.entries.map((x, i) =>
-        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.name)}</div><div class="meta">${esc(x.id)}・${esc(x.club)}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
+        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x.name)}</div><div class="meta">${esc(x.id)}・${esc(x.club)}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
       app.querySelectorAll('[data-i]').forEach(el => el.onclick = () => renderProfileForm(r.entries[el.dataset.i]));
     } catch (err) { setMsg(m, err.message, 'err'); go.disabled = false; }
   };
@@ -256,55 +256,79 @@ function renderProfileLogin() {
 
 function renderProfileForm(entry, okText = '') {
   const v = k => esc(entry[k] || '');
-  const missing = [!entry['Email'] && 'Email', !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
+  const me = entry.as === 2 ? 2 : 1;
+  const myEmailKey = me === 2 ? '歌手2Email' : 'Email';
+  const myName = me === 2 ? entry['歌手2本名'] : entry.name;
+  const missing = [!entry[myEmailKey] && '你的 Email', !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
+  const youTag = n => n === me ? ' <span class="chip ok">你</span>' : '';
   app.className = 'wrap';
   app.innerHTML = head() + `
     <div class="card">
       <div class="row">
         ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="">` : ''}
-        <div class="grow"><div class="name" style="font-size:18px">${esc(entry.name)}</div><div class="meta">${esc(entry.id)}・${esc(entry.zone)}・${esc(entry.club)}</div></div>
+        <div class="grow"><div class="name" style="font-size:18px">${esc(myName)}</div><div class="meta">${esc(entry.id)}・${esc(entry.zone)}・${esc(entry.club)}</div></div>
       </div>
       ${okText ? `<p class="msg ok">${esc(okText)}</p>` : missing.length ? `<div class="banner" style="margin:12px 0 0">還缺：${missing.join('、')}</div>` : ''}
-      <form id="f">
-        <label for="Email">Email <span class="opt">必填，之後用來登入與查成績</span></label>
-        <input id="Email" type="email" required autocomplete="email" value="${v('Email')}" placeholder="name@example.com">
-        <label for="電話">電話 <span class="opt">選填</span></label>
-        <input id="電話" type="tel" autocomplete="tel" value="${v('電話')}">
-        <label for="歌手1稱謂">稱謂 <span class="opt">選填</span></label>
-        <input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}">
-        <label for="歌名">初賽曲目</label>
+    </div>
+    <form id="f">
+      <div class="card">
+        <h2>曲目</h2>
+        <label for="歌名" style="margin-top:0">初賽曲目</label>
         <input id="歌名" type="text" value="${v('歌名')}">
         <label for="原唱">原唱 <span class="opt">選填</span></label>
         <input id="原唱" type="text" value="${v('原唱')}">
-        <label for="歌手2本名">合唱者本名 <span class="opt">沒有合唱者請留空</span></label>
-        <input id="歌手2本名" type="text" value="${v('歌手2本名')}">
-        <label for="歌手2稱謂">合唱者稱謂 <span class="opt">選填</span></label>
+      </div>
+      <div class="card">
+        <h2>歌手：${esc(entry.name)}${youTag(1)}</h2>
+        <label for="Email" style="margin-top:0">Email <span class="opt">${me === 1 ? '必填，之後用來登入與查成績' : '選填，可由本人自行補填'}</span></label>
+        <input id="Email" type="email" ${me === 1 ? 'required' : ''} autocomplete="${me === 1 ? 'email' : 'off'}" value="${v('Email')}" placeholder="name@example.com">
+        <label for="電話">電話 <span class="opt">選填</span></label>
+        <input id="電話" type="tel" value="${v('電話')}">
+        <label for="歌手1稱謂">稱謂 <span class="opt">選填</span></label>
+        <input id="歌手1稱謂" type="text" value="${v('歌手1稱謂')}">
+      </div>
+      <div class="card">
+        <h2>合唱者${entry['歌手2本名'] ? '：' + esc(entry['歌手2本名']) : ''}${youTag(2)}</h2>
+        ${me === 1 ? `<label for="歌手2本名" style="margin-top:0">合唱者本名 <span class="opt">獨唱請留空</span></label>
+        <input id="歌手2本名" type="text" value="${v('歌手2本名')}">` : `<input id="歌手2本名" type="hidden" value="${v('歌手2本名')}">`}
+        <label for="歌手2Email" ${me === 2 ? 'style="margin-top:0"' : ''}>Email <span class="opt">${me === 2 ? '必填，之後用來登入與查成績' : '選填，合唱者也可以自己登入補填'}</span></label>
+        <input id="歌手2Email" type="email" ${me === 2 ? 'required' : ''} autocomplete="${me === 2 ? 'email' : 'off'}" value="${v('歌手2Email')}" placeholder="name@example.com">
+        <label for="歌手2電話">電話 <span class="opt">選填</span></label>
+        <input id="歌手2電話" type="tel" value="${v('歌手2電話')}">
+        <label for="歌手2稱謂">稱謂 <span class="opt">選填</span></label>
         <input id="歌手2稱謂" type="text" value="${v('歌手2稱謂')}">
-        <label for="photo">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
+      </div>
+      <div class="card">
+        <h2>檔案</h2>
+        <label for="photo" style="margin-top:0">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
         <input id="photo" type="file" accept="image/*">
         <label for="audio">音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
-        <button class="full" style="margin-top:18px" id="save">儲存</button>
-        <p class="msg" id="m"></p>
-      </form>
-    </div>
+      </div>
+      <button class="full" id="save">儲存</button>
+      <p class="msg" id="m"></p>
+    </form>
     <p class="center"><a href="#" style="color:var(--muted)">完成，回首頁</a></p>`;
   const m = $('#m'), save = $('#save');
   $('#f').onsubmit = async e => {
     e.preventDefault();
     const data = {};
-    ['Email', '電話', '歌手1稱謂', '歌名', '原唱', '歌手2本名', '歌手2稱謂'].forEach(k => data[k] = document.getElementById(k).value.trim());
+    ['歌名', '原唱', 'Email', '電話', '歌手1稱謂', '歌手2本名', '歌手2Email', '歌手2電話', '歌手2稱謂']
+      .forEach(k => data[k] = document.getElementById(k).value.trim());
+    if (!data['歌手2本名'] && (data['歌手2Email'] || data['歌手2電話'] || data['歌手2稱謂'])) {
+      setMsg(m, '有填合唱者資料，請一併填合唱者本名', 'err'); return;
+    }
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
       if (audio && audio.size > MAX_AUDIO_MB * 1024 * 1024) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
-      const payload = { id: entry.id, token: entry.token, data };
+      const payload = { id: entry.id, token: entry.token, as: me, data };
       setMsg(m, '處理檔案中…');
       if (photo) payload.photo = await shrinkImage(photo);
       if (audio) payload.audio = { name: audio.name, data: await readDataUrl(audio) };
       setMsg(m, '上傳中，請稍候…');
       const r = await api('save', payload);
-      renderProfileForm(r.entry, '已儲存。下次請用 ' + r.entry['Email'] + ' 登入。');
+      renderProfileForm(r.entry, '已儲存。下次請用 ' + r.entry[myEmailKey] + ' 登入。');
       window.scrollTo(0, 0);
     } catch (err) { setMsg(m, err.message, 'err'); save.disabled = false; }
   };
