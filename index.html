@@ -147,6 +147,16 @@
   .switch:first-of-type { border-top: 0; }
   .switch button { padding: 8px 14px; min-height: 40px; font-size: 14px; }
   .check { width: 22px; height: 22px; accent-color: var(--gold); flex: none; }
+  table.paper { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+  table.paper th { text-align: center; font-weight: 700; padding: 8px 6px; border-bottom: 1px solid var(--line); background: var(--soft); line-height: 1.3; }
+  table.paper td { padding: 4px 6px; border-top: 1px solid var(--line); text-align: center; }
+  table.paper .who { text-align: left; max-width: 180px; position: sticky; left: 0; background: var(--card); }
+  table.paper th.who { background: var(--soft); }
+  table.paper input { width: 64px; padding: 8px 6px; text-align: center; font-weight: 700; border-radius: 8px; }
+  table.paper .cmt input { width: 220px; text-align: left; font-weight: 400; }
+  table.paper input.bad { border-color: var(--err); background: var(--err-bg); }
+  table.paper tr.changed td { background: var(--warn-bg); }
+  table.paper .tot { font-weight: 700; min-width: 56px; }
 </style>
 </head>
 <body>
@@ -803,6 +813,7 @@ async function startAdmin(at) {
   app.innerHTML = head('主辦管理') + '<p class="sub">載入中…</p>';
   await loadAdmin();
   A.timer = setInterval(() => { if (A.tab === 'rank') loadAdmin(); }, 30000);
+  window.addEventListener('beforeunload', e => { if (A.tab === 'paper' && paperDirty()) { e.preventDefault(); e.returnValue = ''; } });
 }
 
 async function loadAdmin() {
@@ -836,7 +847,7 @@ async function adminCall(action, payload, okText) {
 function drawAdmin() {
   const d = A.data, t = d.loadedAt;
   const time = [t.getHours(), t.getMinutes(), t.getSeconds()].map(n => String(n).padStart(2, '0')).join(':');
-  const tabs = [['rank', `${d.stage}名次`], ['advance', '晉級決賽'], ['settings', '賽程與開關']];
+  const tabs = [['rank', `${d.stage}名次`], ['paper', '紙本輸入'], ['advance', '晉級決賽'], ['settings', '賽程與開關']];
   app.innerHTML = `
     <h1>主辦管理</h1>
     <p class="sub"><span class="chip gold">目前賽程：${esc(d.stage)}</span>　報名 ${d.registered} / 70 組・最後更新 ${time}
@@ -845,10 +856,15 @@ function drawAdmin() {
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${A.tab === k ? '' : 'ghost'}" data-tab="${k}">${l}</button>`).join('')}</div>
     <div id="tabBody"></div>`;
   $('#reload').onclick = loadAdmin;
-  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { A.tab = b.dataset.tab; drawAdmin(); });
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+    if (A.tab === 'paper' && b.dataset.tab !== 'paper' && paperDirty() && !confirm('紙本輸入還有尚未儲存的分數，確定要離開嗎？')) return;
+    if (b.dataset.tab === 'paper') P.data = null;
+    A.tab = b.dataset.tab; drawAdmin();
+  });
   const body = $('#tabBody');
   if (A.tab === 'rank') drawAdminRank(body);
   else if (A.tab === 'advance') drawAdminAdvance(body);
+  else if (A.tab === 'paper') drawAdminPaper(body);
   else drawAdminSettings(body);
 }
 
@@ -978,6 +994,121 @@ function drawAdminSettings(body) {
       ? `切換到決賽？評審頁將改為決賽名單（已勾選 ${d.advance.filter(x => x.advanced).length} 位晉級者），並重新開放評分。`
       : '切換回初賽？評審頁將改回初賽名單，並重新開放評分。';
     if (confirm(msg)) adminCall('adminStage', { stage: next }, '已切換到' + next);
+  };
+}
+
+// 紙本代輸入：一位評審一張大表，照紙本一列一列打，最後一次儲存
+const P = { judge: '', data: null, loading: false, err: '' };
+
+async function loadPaper(judge) {
+  P.loading = true; P.err = '';
+  try { P.data = await api('adminSheet', { at: A.at, judge }); P.judge = P.data.judge; }
+  catch (err) { P.err = err.message; }
+  P.loading = false;
+  if (A.tab === 'paper') drawAdmin();
+}
+
+function paperDirty() { return !!app.querySelector('tr.changed'); }
+
+function drawAdminPaper(body) {
+  if (!P.data && !P.loading) { loadPaper(P.judge); }
+  if (!P.data) { body.innerHTML = P.err ? `<div class="banner err">${esc(P.err)}</div>` : '<p class="sub">載入中…</p>'; return; }
+  const d = P.data, crit = d.criteria;
+  const val = (sc, k) => sc && sc.items[k] !== '' && sc.items[k] != null ? esc(sc.items[k]) : '';
+  body.innerHTML = `
+    <div class="card">
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <span class="small" style="font-weight:700">評審</span>
+        ${d.judges.map(j => `<button class="${j === d.judge ? '' : 'ghost'}" data-judge="${esc(j)}" style="min-height:38px;padding:6px 14px;font-size:14px">${esc(j)}</button>`).join('')}
+      </div>
+      <p class="meta small" style="margin:10px 0 0">照紙本依序輸入：Tab 移到右邊一格，Enter 跳到下一位的同一欄。四項都填了才會儲存該列，改過的列會標成黃色。已存過的分數會先帶出來，可以直接修改。</p>
+      ${d.scoringOpen ? '' : '<div class="banner err" style="margin:10px 0 0">評分已鎖定，請先到「賽程與開關」開放評分才能儲存。</div>'}
+    </div>
+    <div style="overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:16px">
+      <table class="paper">
+        <thead><tr><th>序</th><th class="who">參賽者</th>${crit.map(c => `<th>${esc(c.name.split('／')[0])}<br><span class="meta">/${c.max}</span></th>`).join('')}<th>總分</th><th class="cmt">評語</th></tr></thead>
+        <tbody>${d.entries.map((e, i) => `
+          <tr data-id="${esc(e.id)}">
+            <td class="meta">${e.order !== '' ? esc(e.order) : i + 1}</td>
+            <td class="who"><div class="name ellipsis">${esc(e.singers)}</div><div class="meta ellipsis">${esc(e.song || '曲目未定')}${e.score && e.score.source === '評審線上' ? '・線上已評' : ''}</div></td>
+            ${crit.map((c, k) => `<td><input type="text" inputmode="decimal" data-k="${k}" value="${val(e.score, c.name)}" aria-label="${esc(e.singers)} ${esc(c.name)}"></td>`).join('')}
+            <td class="tot">${e.score ? fmt(crit.reduce((s, c) => s + (Number(e.score.items[c.name]) || 0), 0)) : ''}</td>
+            <td class="cmt"><input type="text" data-c value="${esc(e.score ? e.score.comment : '')}" aria-label="${esc(e.singers)} 評語"></td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="actionbar"><div class="in" style="max-width:980px">
+      <div class="grow small" id="phint">尚未修改</div>
+      <button class="gold" data-act id="psave">全部儲存</button>
+    </div></div>
+    <p class="msg" id="sm"></p>`;
+
+  const rows = [...body.querySelectorAll('tbody tr')];
+  // 上次儲存時沒填完的列，重畫後把輸入內容放回去，避免白打
+  rows.forEach(tr => {
+    const kept = P.keep && P.keep[tr.dataset.id];
+    if (!kept) return;
+    tr.querySelectorAll('[data-k]').forEach((inp, k) => { inp.value = kept.vals[k]; });
+    tr.querySelector('[data-c]').value = kept.comment;
+    tr.classList.add('changed');
+  });
+  P.keep = null;
+  const parse = v => { v = String(v).trim(); return v === '' ? null : Number(v); };
+  const checkCell = inp => {
+    const c = crit[inp.dataset.k], v = parse(inp.value);
+    const bad = v !== null && (isNaN(v) || v < 0 || v > c.max || Math.round(v * 2) !== v * 2);
+    inp.classList.toggle('bad', bad);
+    inp.title = bad ? `請填 0 到 ${c.max}，最小單位 0.5` : '';
+    return !bad;
+  };
+  const refreshRow = tr => {
+    const vals = [...tr.querySelectorAll('[data-k]')].map(i => parse(i.value));
+    tr.querySelector('.tot').textContent = vals.every(v => v === null) ? '' : fmt(vals.reduce((s, v) => s + (Number(v) || 0), 0)) + (vals.some(v => v === null) ? '…' : '');
+  };
+  const refreshHint = () => {
+    const n = body.querySelectorAll('tr.changed').length;
+    $('#phint').textContent = n ? `${n} 列尚未儲存` : '尚未修改';
+  };
+  rows.forEach((tr, r) => tr.querySelectorAll('input').forEach(inp => {
+    inp.onfocus = () => inp.select();
+    inp.oninput = () => { tr.classList.add('changed'); if (inp.dataset.k !== undefined) checkCell(inp); refreshRow(tr); refreshHint(); };
+    inp.onkeydown = ev => {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      const next = rows[r + 1];
+      if (next) next.querySelector(inp.dataset.k !== undefined ? `[data-k="${inp.dataset.k}"]` : '[data-c]').focus();
+    };
+  }));
+  body.querySelectorAll('[data-judge]').forEach(b => b.onclick = () => {
+    if (paperDirty() && !confirm('還有尚未儲存的分數，確定要切換評審嗎？')) return;
+    P.data = null; P.judge = b.dataset.judge; drawAdmin();
+  });
+
+  $('#psave').onclick = async () => {
+    const changed = rows.filter(tr => tr.classList.contains('changed'));
+    if (!changed.length) { toast('沒有要儲存的變更'); return; }
+    const out = [], incomplete = [];
+    let bad = false;
+    changed.forEach(tr => {
+      const inputs = [...tr.querySelectorAll('[data-k]')];
+      if (!inputs.every(checkCell)) bad = true;
+      const vals = inputs.map(i => parse(i.value));
+      if (vals.some(v => v === null)) { incomplete.push(tr); return; }
+      out.push({ id: tr.dataset.id, items: Object.fromEntries(crit.map((c, k) => [c.name, vals[k]])), comment: tr.querySelector('[data-c]').value.trim() });
+    });
+    const sm = $('#sm');
+    if (bad) { setMsg(sm, '有分數超出範圍（紅框），請修正後再儲存', 'err'); body.querySelector('input.bad').focus(); return; }
+    if (incomplete.length && !confirm(`有 ${incomplete.length} 列四項沒填完，這幾列不會儲存。其餘 ${out.length} 列要先儲存嗎？`)) return;
+    if (!out.length) return;
+    $('#psave').disabled = true; setMsg(sm, `儲存 ${out.length} 列中…`);
+    const keep = Object.fromEntries(incomplete.map(tr => [tr.dataset.id, {
+      vals: [...tr.querySelectorAll('[data-k]')].map(i => i.value), comment: tr.querySelector('[data-c]').value }]));
+    try {
+      P.data = await api('adminBatch', { at: A.at, judge: d.judge, stage: d.stage, rows: out });
+      P.keep = keep;
+      drawAdmin();
+      toast(`已儲存 ${P.data.saved} 列（${d.judge}）`);
+    } catch (err) { setMsg(sm, err.message, 'err'); $('#psave').disabled = false; }
   };
 }
 
