@@ -3,98 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f4f5f7">
-<title>2026-27年度 歌唱大賽</title>
+<meta name="theme-color" content="#14275a">
+<meta name="description" content="3481 地區第 6 屆扶輪好聲音歌唱比賽：線上報名、資料補登、名次公告與成績查詢。">
+<title>扶輪好聲音・3481 地區第 6 屆歌唱比賽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f5f7; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #d8dde3; --soft: #eef1f4;
-    --primary: #1f6feb; --on-primary: #fff; --ok: #1a7f37; --ok-bg: #dafbe1; --warn: #9a6700; --warn-bg: #fff8c5;
-    --err: #cf222e; --err-bg: #ffebe9; --sel: #ddf4ff;
+    --navy: #14275a; --navy-2: #24407f; --gold: #b8892f; --gold-2: #d9b45f; --gold-soft: #f6ead0;
+    --bg: #fbf6ee; --card: #ffffff; --text: #1d2433; --muted: #6a6f7c; --line: #e8dfcf; --soft: #f3ece0;
+    --primary: var(--navy); --on-primary: #fff; --ok: #1f7a43; --ok-bg: #e2f3e8; --warn: #8a5a00; --warn-bg: #fdf1d4;
+    --err: #b42318; --err-bg: #fde8e6; --hero-from: #fffaf1; --hero-to: #f5e8cf;
+    --serif: "Noto Serif TC", "Songti TC", serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0d1117; --card: #161b22; --text: #e6edf3; --muted: #9198a1; --line: #30363d; --soft: #21262d;
-      --primary: #388bfd; --on-primary: #fff; --ok: #3fb950; --ok-bg: #12261e; --warn: #d29922; --warn-bg: #272115;
-      --err: #f85149; --err-bg: #2d1416; --sel: #121d2f;
+      --navy: #c9d6ff; --navy-2: #9fb3ec; --gold: #e2bd6a; --gold-2: #e9cc86; --gold-soft: #2c2616;
+      --bg: #0d1530; --card: #16214a; --text: #ecefff; --muted: #a2a9c4; --line: #2a3766; --soft: #1f2b58;
+      --primary: #e2bd6a; --on-primary: #1a1405; --ok: #57c983; --ok-bg: #12301f; --warn: #f0c96b; --warn-bg: #2f2710;
+      --err: #ff8a80; --err-bg: #3a1618; --hero-from: #16214a; --hero-to: #0d1530;
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); }
-  body { font: 16px/1.55 -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 120px; }
-  .wrap.wide { max-width: 960px; }
-  h1 { font-size: 20px; margin: 4px 0 2px; }
-  h2 { font-size: 18px; margin: 0 0 12px; }
+  body { font: 16px/1.6 "Noto Sans TC", -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 16px 16px 120px; }
+  .wrap.wide { max-width: 980px; }
+  h1 { font-size: 22px; margin: 4px 0 2px; font-family: var(--serif); color: var(--navy); }
+  h2 { font-size: 18px; margin: 0 0 12px; font-family: var(--serif); color: var(--navy); }
   .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  a.card { display: block; color: inherit; text-decoration: none; }
-  a.card:active { background: var(--soft); }
-  label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 4px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  label { display: block; font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
   .opt { font-weight: 400; color: var(--muted); font-size: 13px; }
   input[type=text], input[type=email], input[type=tel], select, textarea {
-    width: 100%; padding: 11px 12px; font: inherit; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); }
-  input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
-  textarea { min-height: 72px; resize: vertical; }
-  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; min-height: 44px;
-    background: var(--primary); color: var(--on-primary); }
-  button.ghost { background: var(--soft); color: var(--text); }
-  button.link { background: none; color: var(--primary); padding: 8px 4px; min-height: 0; }
+    width: 100%; padding: 12px 14px; font: inherit; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 52%, calc(100% - 15px) 52%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  textarea { min-height: 76px; resize: vertical; }
+  button, .btn { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 12px 18px; cursor: pointer; min-height: 46px;
+    background: var(--primary); color: var(--on-primary); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  button.ghost, .btn.ghost { background: var(--soft); color: var(--text); }
+  button.gold, .btn.gold { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1a1405; }
+  button.link { background: none; color: var(--navy-2); padding: 8px 4px; min-height: 0; font-weight: 500; }
   button:disabled { opacity: .5; cursor: default; }
   .full { width: 100%; }
-  .msg { margin: 12px 0 0; font-weight: 600; font-size: 15px; }
+  a { color: var(--navy-2); }
+  .msg { margin: 12px 0 0; font-weight: 700; font-size: 15px; }
   .msg:empty { display: none; }
   .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
-  .banner { border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; background: var(--warn-bg); color: var(--warn); }
+  .banner { border-radius: 12px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; background: var(--warn-bg); color: var(--warn); }
   .banner.err { background: var(--err-bg); color: var(--err); }
+  .banner.ok { background: var(--ok-bg); color: var(--ok); }
   .chip { display: inline-block; background: var(--soft); border-radius: 999px; padding: 2px 10px; font-size: 13px; white-space: nowrap; }
   .chip.ok { background: var(--ok-bg); color: var(--ok); } .chip.warn { background: var(--warn-bg); color: var(--warn); }
-  .chip.err { background: var(--err-bg); color: var(--err); }
-  .thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; background: var(--soft); flex: none; }
+  .chip.err { background: var(--err-bg); color: var(--err); } .chip.gold { background: var(--gold-soft); color: var(--gold); font-weight: 700; }
+  .thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; background: var(--soft); flex: none; }
   .row { display: flex; align-items: center; gap: 12px; }
   .grow { flex: 1; min-width: 0; }
   .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; }
-  .bar > i { display: block; height: 100%; background: var(--primary); }
+  .bar > i { display: block; height: 100%; background: var(--gold); }
   .bar.ok > i { background: var(--ok); }
   .tabs { display: flex; gap: 8px; margin: 12px 0; overflow-x: auto; }
-  .tabs button { padding: 8px 14px; min-height: 36px; font-size: 14px; white-space: nowrap; }
-  .list { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+  .tabs button { padding: 8px 14px; min-height: 38px; font-size: 14px; white-space: nowrap; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); cursor: pointer; }
   .item:first-child { border-top: 0; }
   .item:active { background: var(--soft); }
   .num { width: 32px; text-align: center; font-weight: 700; color: var(--muted); flex: none; }
-  .name { font-weight: 600; }
+  .name { font-weight: 700; }
   .meta { color: var(--muted); font-size: 13px; }
-  .sticky { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0 10px; margin: -16px 0 8px; padding-top: 16px; }
-  .nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .nav button { padding: 8px 12px; min-height: 40px; }
-  .crit { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
-  .crit:first-of-type { border-top: 0; }
-  .crit .lab { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; line-height: 1.3; }
-  .crit .lab small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
-  .step { display: flex; align-items: center; gap: 6px; flex: none; }
-  .step button { width: 44px; height: 44px; padding: 0; font-size: 22px; line-height: 1; background: var(--soft); color: var(--text); }
-  .step input { width: 64px; height: 44px; text-align: center; font-size: 20px; font-weight: 700; padding: 0; }
-  .crit .err { color: var(--err); font-size: 13px; flex-basis: 100%; }
-  .crit.bad input { border-color: var(--err); }
-  .crit { flex-wrap: wrap; }
-  .actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--card); border-top: 1px solid var(--line);
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
-  .actionbar .in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
-  .total { font-size: 15px; color: var(--muted); }
-  .total b { font-size: 24px; color: var(--text); }
-  .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--text); color: var(--bg);
-    padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 20; opacity: 0; transition: opacity .2s; pointer-events: none; }
-  .toast.show { opacity: 1; }
-  .rank { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 18px; background: var(--soft); flex: none; }
-  .rank.top { background: var(--primary); color: var(--on-primary); }
-  .stat { font-size: 32px; font-weight: 800; line-height: 1.1; }
-  .kv { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
-  .kv:first-child { border-top: 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   .small { font-size: 13px; }
   .center { text-align: center; }
+  .sticky { position: sticky; top: 0; z-index: 5; background: var(--bg); margin: -16px 0 8px; padding: 16px 0 10px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .nav button { padding: 8px 12px; min-height: 42px; }
+  .crit { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .crit:first-of-type { border-top: 0; }
+  .crit .lab { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; line-height: 1.3; }
+  .crit .lab small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+  .step { display: flex; align-items: center; gap: 6px; flex: none; }
+  .step button { width: 46px; height: 46px; padding: 0; font-size: 22px; line-height: 1; background: var(--soft); color: var(--text); }
+  .step input { width: 66px; height: 46px; text-align: center; font-size: 20px; font-weight: 700; padding: 0; }
+  .crit .err { color: var(--err); font-size: 13px; flex-basis: 100%; }
+  .crit.bad input { border-color: var(--err); }
+  .actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--card); border-top: 1px solid var(--line);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .actionbar .in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .total { font-size: 15px; color: var(--muted); }
+  .total b { font-size: 24px; color: var(--text); }
+  .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--navy); color: #fff;
+    padding: 10px 18px; border-radius: 999px; font-size: 14px; z-index: 20; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .rank { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; background: var(--soft); flex: none; font-family: var(--serif); }
+  .rank.top { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1a1405; }
+  .stat { font-size: 32px; font-weight: 900; line-height: 1.1; font-family: var(--serif); color: var(--navy); }
+  .kv { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .kv:first-child { border-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .back { display: inline-block; margin: 0 0 12px; text-decoration: none; font-size: 15px; }
+
+  /* 首頁主視覺 */
+  .hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 20px 22px; margin-bottom: 16px; text-align: center;
+    background: radial-gradient(120% 90% at 85% 0%, var(--gold-soft) 0%, transparent 60%), linear-gradient(180deg, var(--hero-from), var(--hero-to));
+    border: 1px solid var(--line); }
+  .hero .notes { position: absolute; inset: 0; pointer-events: none; color: var(--gold-2); opacity: .55; font-size: 28px; }
+  .hero .notes span { position: absolute; }
+  .org { font-size: 13px; letter-spacing: .08em; color: var(--navy-2); font-weight: 700; }
+  .org b { color: var(--gold); }
+  .edition { font-family: var(--serif); font-weight: 900; color: var(--navy); font-size: 20px; margin-top: 10px; }
+  .title { font-family: var(--serif); font-weight: 900; color: var(--navy); font-size: clamp(40px, 13vw, 64px); line-height: 1.05; margin: 2px 0 10px;
+    letter-spacing: .04em; text-shadow: 0 2px 0 var(--gold-soft); }
+  .pill { display: inline-block; background: var(--navy); color: #fff; font-family: var(--serif); font-weight: 900; font-size: 20px;
+    padding: 4px 22px; border-radius: 999px; letter-spacing: .2em; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill { background: var(--gold); color: #1a1405; } }
+  .slogan { font-family: var(--serif); color: var(--gold); font-size: 17px; margin: 14px 0 0; letter-spacing: .12em; }
+  .deadline { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; background: var(--card); border: 1px solid var(--gold-2);
+    color: var(--text); border-radius: 999px; padding: 6px 14px; font-size: 14px; }
+  .deadline b { color: var(--gold); font-family: var(--serif); font-size: 18px; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .actions .btn { min-height: 58px; flex-direction: column; gap: 0; font-size: 16px; padding: 10px; }
+  .actions .btn small { font-weight: 400; font-size: 12px; opacity: .85; }
+  .actions .wide { grid-column: 1 / -1; }
+  .sched { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .sched { grid-template-columns: 1fr; } }
+  .sched .card { margin: 0; border-left: 4px solid var(--gold); border-radius: 0 16px 16px 0; }
+  .sched .k { font-family: var(--serif); font-weight: 900; color: var(--navy); font-size: 18px; letter-spacing: .3em; }
+  .sched .d { font-weight: 700; margin-top: 2px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .fact { background: var(--soft); border-radius: 12px; padding: 10px 12px; }
+  .fact .k { font-size: 12px; color: var(--muted); }
+  .fact .v { font-weight: 700; }
+  .rules h3 { font-family: var(--serif); color: var(--navy); font-size: 16px; margin: 18px 0 6px; padding-left: 10px; border-left: 3px solid var(--gold); }
+  .rules h3:first-child { margin-top: 0; }
+  .rules p, .rules li { margin: 4px 0; }
+  .rules ol, .rules ul { margin: 4px 0; padding-left: 22px; }
+  .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; line-height: 1.8; }
+  .foot a { color: var(--navy-2); }
+  .switch { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .switch:first-of-type { border-top: 0; }
+  .switch button { padding: 8px 14px; min-height: 40px; font-size: 14px; }
+  .check { width: 22px; height: 22px; accent-color: var(--gold); flex: none; }
 </style>
 </head>
 <body>
@@ -104,7 +156,13 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
 const MAX_AUDIO_MB = 25;
-const TITLE = '2026-27年度 歌唱大賽';
+const TITLE = '扶輪好聲音歌唱比賽';
+// 海報上的活動資訊；日期是民國年，倒數用西元時間計算
+const EVENT = {
+  deadline: new Date('2026-10-23T23:59:59+08:00'), deadlineText: '115 年 10 月 23 日',
+  prelim: { date: '115 年 11 月 14 日（六）', place: '中正紀念堂 演藝廳', note: '白色建築物，非國家音樂廳' },
+  final: { date: '116 年 2 月 15 日（一）', place: '大直典華五樓 雲翼廳', note: '台北市中山區植福路 8 號' },
+};
 
 const app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -143,49 +201,131 @@ function store(key, val) {
 function head(sub = '') {
   return `<h1>${TITLE}</h1><p class="sub">${esc(sub || (cfg && cfg.stage ? '目前賽程：' + cfg.stage : ''))}</p>`;
 }
+function backLink() { return `<a class="back" href="#">‹ 回首頁</a>`; }
+function pageHead(title, sub = '') { return backLink() + `<h1>${esc(title)}</h1>${sub ? `<p class="sub">${esc(sub)}</p>` : '<div style="height:12px"></div>'}`; }
+const anyPub = k => cfg && Object.values(cfg.published).some(p => p[k]);
 
 // =================== 首頁 ===================
 
+function daysLeft() {
+  const ms = EVENT.deadline - Date.now();
+  return ms < 0 ? -1 : Math.ceil(ms / 86400000);
+}
+
 function renderHome() {
   app.className = 'wrap';
-  const cards = [];
-  if (cfg.ranksPublic) cards.push(['#ranks', '名次公告', '查看本次比賽的完整名次']);
-  if (cfg.detailPublic) cards.push(['#me', '查詢我的成績', '輸入 Email，查看各項分數與評審評語']);
-  if (cfg.regOpen) cards.push(['#register', '我要報名', '還沒報名的新參賽者從這裡報名']);
-  if (cfg.profileOpen) cards.push(['#profile', '補填／修改參賽資料', '已報名的人補上 Email、身份、曲目或照片']);
-  app.innerHTML = head() + (cards.length
-    ? cards.map(([h, t, d]) => `<a class="card" href="${h}"><div class="row"><div class="grow"><div class="name">${t}</div><div class="meta">${d}</div></div><span aria-hidden="true">›</span></div></a>`).join('')
-    : `<div class="card center"><p style="margin:8px 0">成績尚未公布，請留意主辦單位通知。</p></div>`);
+  const left = daysLeft();
+  const deadline = !cfg.regOpen ? '報名已截止'
+    : left < 0 ? `報名截止日 ${EVENT.deadlineText}` : left === 0 ? '<b>今天</b> 截止報名' : `距離報名截止還有 <b>${left}</b> 天`;
+  const acts = [];
+  if (cfg.regOpen) acts.push(`<a class="btn gold ${cfg.profileOpen ? '' : 'wide'}" href="#register">我要報名<small>新參賽者</small></a>`);
+  if (cfg.profileOpen) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
+  if (anyPub('ranks')) acts.push(`<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`);
+  if (anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
+  if (acts.length % 2 === 1 && acts.length > 1) acts[acts.length - 1] = acts[acts.length - 1].replace('class="btn ', 'class="btn wide ');
+  app.innerHTML = `
+    <section class="hero">
+      <div class="notes" aria-hidden="true"><span style="left:6%;top:14%">♪</span><span style="right:8%;top:30%;font-size:34px">♫</span><span style="left:12%;bottom:18%;font-size:22px">♩</span><span style="right:16%;bottom:12%">♪</span></div>
+      <div class="org">Rotary <b>·</b> District 3481</div>
+      <div class="edition">3481 地區第 6 屆</div>
+      <div class="title">扶輪好聲音</div>
+      <span class="pill">歌唱比賽</span>
+      <p class="slogan">用歌聲傳遞感動・用旋律創造影響</p>
+      <div class="deadline">${deadline}</div>
+    </section>
+    ${acts.length ? `<div class="actions">${acts.join('')}</div>` : ''}
+    <div class="sched">
+      <div class="card"><div class="k">初賽</div><div class="d">${EVENT.prelim.date}</div><div>${EVENT.prelim.place}</div><div class="meta">${EVENT.prelim.note}</div></div>
+      <div class="card"><div class="k">決賽</div><div class="d">${EVENT.final.date}</div><div>${EVENT.final.place}</div><div class="meta">${EVENT.final.note}</div></div>
+    </div>
+    <div class="card">
+      <h2>比賽重點</h2>
+      <div class="facts">
+        <div class="fact"><div class="k">參賽資格</div><div class="v">3481 地區社友、寶眷、執秘</div></div>
+        <div class="fact"><div class="k">報名費</div><div class="v">3,000 元／每位</div></div>
+        <div class="fact"><div class="k">曲目語言</div><div class="v">英、日、國、台語</div></div>
+        <div class="fact"><div class="k">名額</div><div class="v">共 70 組・決賽錄取 30 位</div></div>
+      </div>
+      <p style="margin:14px 0 0"><a href="#rules">閱讀完整比賽辦法 ›</a></p>
+    </div>
+    ${footer()}`;
+}
+
+function footer() {
+  return `<div class="foot">活動洽詢：地區辦公室 <a href="tel:0227005978">02 2700 5978</a><br>主辦單位保有活動最終解釋權</div>`;
+}
+
+function renderRules() {
+  app.className = 'wrap';
+  app.innerHTML = pageHead('比賽辦法', '3481 地區第 6 屆扶輪好聲音歌唱比賽') + `
+    <div class="card rules">
+      <h3>比賽日期與地點</h3>
+      <p><b>初賽</b>：${EVENT.prelim.date}，${EVENT.prelim.place}（${EVENT.prelim.note}）</p>
+      <p><b>決賽</b>：${EVENT.final.date}，${EVENT.final.place}（${EVENT.final.note}）</p>
+      <h3>參賽資格</h3>
+      <p>3481 地區社友、寶眷、執秘為限。</p>
+      <h3>報名費</h3>
+      <p>每位 3,000 元。</p>
+      <h3>曲目</h3>
+      <p>以英語、日語、國語、台語歌曲為限。</p>
+      <h3>報名截止</h3>
+      <p>${EVENT.deadlineText}截止報名，共 70 組。</p>
+      <h3>比賽方式</h3>
+      <ul>
+        <li>決賽錄取 30 位。</li>
+        <li>每位參賽者初賽、決賽各準備 1 首歌曲，兩首不得重複，可自彈自唱。</li>
+        <li>評分項目：音準節拍／音色咬字 40%、演唱技巧感情 40%、服裝造型 10%、儀態台風 10%。</li>
+      </ul>
+      <h3>報名方式</h3>
+      <ul>
+        <li>敬邀各社贊助活動經費 5,000 元成為贊助社，贊助社可免費推薦一名參加比賽，超過則依實際報名人數收取報名費。</li>
+        <li>報名以社為單位，統一由社辦彙整報名表，mail 至 <a href="mailto:ri3481@hibox.biz">ri3481@hibox.biz</a>（Sharon 收）。</li>
+        <li>本網站可線上登錄或補填參賽資料（Email、曲目、照片等），方便主辦單位彙整與日後查詢成績。</li>
+      </ul>
+      <h3>總監獎項</h3>
+      <ul>
+        <li>贊助 5,000 元：1 顆星 ★</li>
+        <li>贊助 5,000 元並報名比賽：2 顆星 ★★</li>
+      </ul>
+      <h3>備註</h3>
+      <ol>
+        <li>持有歌星證及街頭藝人等職業歌唱表演者，恕不受理報名。</li>
+        <li>初賽選手上台順序於地區辦公室抽籤，若本人無法親自到場抽籤，請找代理人或由主辦單位代理。決定順序後，地區將發正式 mail 通知各社。</li>
+        <li>曾經榮獲冠軍者，主辦單位不再接受報名。</li>
+      </ol>
+    </div>
+    ${footer()}`;
 }
 
 // =================== 公開名次 ===================
 
-async function renderRanks() {
+async function renderRanks(pick) {
   app.className = 'wrap';
-  app.innerHTML = head() + '<p class="sub">載入中…</p>';
+  app.innerHTML = pageHead('名次公告') + '<p class="sub">載入中…</p>';
   try {
     const r = await api('ranks');
-    if (!r.published) { app.innerHTML = head() + backLink() + '<div class="card center">名次尚未公布</div>'; return; }
-    app.innerHTML = head(r.stage + '名次') + backLink() + (r.list.length ? `<div class="list">${r.list.map(x => `
-      <div class="item" style="cursor:default"><div class="rank ${x.rank <= 3 ? 'top' : ''}">${x.rank}</div>
-        <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
-      : '<div class="card center">目前沒有名次資料</div>');
-  } catch (err) { app.innerHTML = head() + backLink() + `<div class="banner err">${esc(err.message)}</div>`; }
+    if (!r.stages.length) { app.innerHTML = pageHead('名次公告') + '<div class="card center">名次尚未公布</div>'; return; }
+    const cur = r.stages.find(s => s.stage === pick) || r.stages[0];
+    app.innerHTML = pageHead('名次公告') + (r.stages.length > 1 ? `<div class="tabs">${r.stages.map(s =>
+      `<button class="${s === cur ? '' : 'ghost'}" data-s="${esc(s.stage)}">${esc(s.stage)}</button>`).join('')}</div>` : `<p class="sub">${esc(cur.stage)}</p>`)
+      + (cur.list.length ? `<div class="list">${cur.list.map(x => `
+        <div class="item" style="cursor:default"><div class="rank ${x.rank <= 3 ? 'top' : ''}">${x.rank}</div>
+          <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
+        : '<div class="card center">目前沒有名次資料</div>') + footer();
+    app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => renderRanks(b.dataset.s));
+  } catch (err) { app.innerHTML = pageHead('名次公告') + `<div class="banner err">${esc(err.message)}</div>`; }
 }
-
-function backLink() { return `<p style="margin:-8px 0 12px"><a href="#" style="color:var(--primary);text-decoration:none">‹ 回首頁</a></p>`; }
 
 // =================== 查詢我的成績 ===================
 
 function renderMe() {
   app.className = 'wrap';
-  if (!cfg.detailPublic) { app.innerHTML = head() + backLink() + '<div class="card center">評分細節尚未公布</div>'; return; }
+  if (!anyPub('detail')) { app.innerHTML = pageHead('查詢我的成績') + '<div class="card center">評分細節尚未公布</div>'; return; }
   const saved = store('sing:email') || '';
-  app.innerHTML = head() + backLink() + `
+  app.innerHTML = pageHead('查詢我的成績') + `
     <div class="card" id="ask">
-      <h2>查詢我的成績</h2>
       <form id="f">
-        <label for="em">補資料時填的 Email <span class="opt">合唱者用自己的 Email 也可以</span></label>
+        <label for="em" style="margin-top:0">補資料時填的 Email <span class="opt">合唱者用自己的 Email 也可以</span></label>
         <input id="em" type="email" required autocomplete="email" placeholder="name@example.com" value="${esc(saved)}">
         <button class="full" style="margin-top:14px" id="b">查詢</button>
       </form>
@@ -201,7 +341,7 @@ function renderMe() {
       const r = await api('myResult', { email });
       store('sing:email', email);
       $('#ask').style.display = 'none';
-      $('#out').innerHTML = r.results.map(x => resultCard(x, r.criteria, r.stage)).join('')
+      $('#out').innerHTML = r.stages.map(st => st.results.map(x => resultCard(x, r.criteria, st.stage)).join('')).join('')
         + `<p class="center"><button class="link" id="again">查詢其他 Email</button></p>`;
       $('#again').onclick = renderMe;
     } catch (err) { setMsg(m, err.message, 'err'); b.disabled = false; }
@@ -210,44 +350,43 @@ function renderMe() {
 
 function resultCard(x, criteria, stage) {
   return `<div class="card">
-    <div class="meta">${esc(stage)}・${esc(x.club)}</div>
-    <div class="name" style="font-size:18px">${esc(x.singers)}</div>
-    <div class="meta">${esc(x.song)}</div>
-    <div class="grid" style="margin:14px 0">
+    <span class="chip gold">${esc(stage)}</span>
+    <div class="name" style="font-size:20px;margin-top:8px;font-family:var(--serif)">${esc(x.singers)}</div>
+    <div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div>
+    <div class="grid" style="margin:16px 0">
       <div><div class="meta">名次</div><div class="stat">${x.rank === '' ? '—' : '第 ' + x.rank + ' 名'}</div></div>
       <div><div class="meta">平均總分</div><div class="stat">${fmt(x.total)}</div></div>
     </div>
     ${criteria.map(c => `<div class="kv"><span>${esc(c.name)}</span><span>${fmt(x.items[c.name])} / ${c.max}</span></div>`).join('')}
-    <h2 style="margin-top:18px">評審評語</h2>
+    <h2 style="margin-top:20px">評審評語</h2>
     ${x.comments.length ? x.comments.map(c => `<div class="kv" style="display:block"><div class="meta">${esc(c.judge)}</div><div style="white-space:pre-wrap">${esc(c.text)}</div></div>`).join('') : '<p class="meta">評審沒有留下評語</p>'}
   </div>`;
 }
 
-// =================== 補填參賽資料 ===================
+// =================== 報名與補填資料 ===================
 
 function renderRegister() {
   if (cfg.regOpen) return renderProfileForm({ as: 1 }, '', true);
   app.className = 'wrap';
-  app.innerHTML = head() + backLink() + '<div class="card center">報名已截止</div>';
+  app.innerHTML = pageHead('我要報名') + '<div class="card center">報名已截止</div>';
 }
 
 function renderProfileLogin() {
   app.className = 'wrap';
-  if (!cfg.profileOpen) { app.innerHTML = head() + backLink() + '<div class="card center">補資料已截止</div>'; return; }
+  if (!cfg.profileOpen) { app.innerHTML = pageHead('補填／修改資料') + '<div class="card center">補資料已截止</div>'; return; }
   const emailOnly = cfg.loginMode === '僅Email';
-  app.innerHTML = head() + backLink() + `
+  app.innerHTML = pageHead('補填／修改資料', '已經報名的參賽者，從這裡補上 Email、身份、曲目或照片') + `
     <div class="card">
-      <h2>補填／修改參賽資料</h2>
       <form id="f">
-        <label for="key">${emailOnly ? 'Email' : '本名或 Email'}</label>
+        <label for="key" style="margin-top:0">${emailOnly ? 'Email' : '本名或 Email'}</label>
         <input id="key" type="${emailOnly ? 'email' : 'text'}" required autocomplete="username"
           placeholder="${emailOnly ? 'name@example.com' : '第一次請輸入報名時的本名'}">
-        <p class="meta small" style="margin:6px 0 0">${emailOnly ? '請用你補填過的 Email 登入。' : '補上 Email 之後，下次請改用 Email 登入。'}</p>
+        <p class="meta" style="margin:8px 0 0">${emailOnly ? '請用你補填過的 Email 登入。' : '補上 Email 之後，下次請改用 Email 登入。'}</p>
         <button class="full" style="margin-top:14px" id="go">登入</button>
         <p class="msg" id="m"></p>
       </form>
     </div>
-    ${cfg.regOpen ? '<p class="center"><a href="#register" style="color:var(--primary)">還沒報名？我要報名</a></p>' : ''}`;
+    ${cfg.regOpen ? '<p class="center"><a href="#register">還沒報名？我要報名 ›</a></p>' : ''}`;
   const m = $('#m'), go = $('#go');
   $('#f').onsubmit = async e => {
     e.preventDefault();
@@ -255,8 +394,8 @@ function renderProfileLogin() {
     try {
       const r = await api('login', { key: $('#key').value.trim() });
       if (r.entries.length === 1) return renderProfileForm(r.entries[0]);
-      app.innerHTML = head() + `<div class="card"><h2>找到 ${r.entries.length} 筆，請選擇</h2><div class="list">${r.entries.map((x, i) =>
-        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x['歌手1本名'])}</div><div class="meta">${esc(x.id)}・${esc(x['社名'])}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div></div>`;
+      app.innerHTML = pageHead('請選擇你的報名') + `<div class="list">${r.entries.map((x, i) =>
+        `<div class="item" data-i="${i}"><div class="grow"><div class="name">${esc(x.as === 2 ? x['歌手2本名'] : x['歌手1本名'])}</div><div class="meta">${esc(x.id)}・${esc(x['社名'])}・${esc(x['歌名'] || '尚未提供曲目')}</div></div><span>›</span></div>`).join('')}</div>`;
       app.querySelectorAll('[data-i]').forEach(el => el.onclick = () => renderProfileForm(r.entries[el.dataset.i]));
     } catch (err) { setMsg(m, err.message, 'err'); go.disabled = false; }
   };
@@ -282,7 +421,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
   const myEmailKey = me === 2 ? '歌手2Email' : 'Email';
   const myName = me === 2 ? entry['歌手2本名'] : entry['歌手1本名'];
   const missing = isNew ? [] : [!entry[myEmailKey] && '你的 Email', !entry['歌手' + me + '身份'] && '身份',
-    !entry['歌名'] && '曲目', !entry.photo && '照片'].filter(Boolean);
+    !entry['歌名'] && '初賽曲目', entry.advanced && !entry['決賽曲目'] && '決賽曲目', !entry.photo && '照片'].filter(Boolean);
   const youTag = n => !isNew && n === me ? ' <span class="chip ok">你</span>' : '';
   const zone = entry.zone || zoneOf(entry['社名']);
   const singer = (n, title) => {
@@ -305,12 +444,13 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     </div>`;
   };
   app.className = 'wrap';
-  app.innerHTML = head() + (isNew ? backLink() : '') + `
-    <div class="card">
-      ${isNew ? '<h2 style="margin:0">我要報名</h2><p class="meta" style="margin:4px 0 0">合唱請在「合唱者」填第二位歌手。</p>' : `
+  app.innerHTML = backLink() + `
+    <div class="card" style="border-color:var(--gold-2)">
+      ${isNew ? '<h1 style="margin:0">我要報名</h1><p class="meta" style="margin:6px 0 0">合唱請在「合唱者」填第二位歌手。送出前可先閱讀<a href="#rules">比賽辦法</a>。</p>' : `
       <div class="row">
         ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="">` : ''}
-        <div class="grow"><div class="name" style="font-size:18px">${esc(myName)}</div><div class="meta">${esc(entry.id)}・${esc(zone)}・${esc(entry['社名'])}</div></div>
+        <div class="grow"><div class="name" style="font-size:20px;font-family:var(--serif)">${esc(myName)} ${entry.advanced ? '<span class="chip gold">晉級決賽</span>' : ''}</div>
+        <div class="meta">${esc(entry.id)}・${esc(zone)}・${esc(entry['社名'])}</div></div>
       </div>`}
       ${okText ? `<p class="msg ok">${esc(okText)}</p>` : missing.length ? `<div class="banner" style="margin:12px 0 0">還缺：${missing.join('、')}</div>` : ''}
     </div>
@@ -323,25 +463,32 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <select id="社名" required>${clubOptions(zone, entry['社名'])}</select>
       </div>
       <div class="card">
-        <h2>曲目</h2>
-        <label for="歌名" style="margin-top:0">初賽曲目</label>
+        <h2>初賽曲目</h2>
+        <label for="歌名" style="margin-top:0">歌名 <span class="opt">英、日、國、台語歌曲</span></label>
         <input id="歌名" type="text" value="${v('歌名')}">
         <label for="原唱">原唱 <span class="opt">選填</span></label>
         <input id="原唱" type="text" value="${v('原唱')}">
       </div>
+      ${entry.advanced ? `<div class="card" style="border-color:var(--gold-2)">
+        <h2>決賽曲目 <span class="chip gold">晉級者填寫</span></h2>
+        <label for="決賽曲目" style="margin-top:0">歌名 <span class="opt">不得與初賽曲目重複</span></label>
+        <input id="決賽曲目" type="text" value="${v('決賽曲目')}">
+        <label for="決賽原唱">原唱 <span class="opt">選填</span></label>
+        <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
+      </div>` : ''}
       ${singer(1, '歌手')}
       ${singer(2, '合唱者 <span class="opt">選填</span>')}
       <div class="card">
-        <h2>檔案</h2>
+        <h2>照片與音檔</h2>
         <label for="photo" style="margin-top:0">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
         <input id="photo" type="file" accept="image/*">
         <label for="audio">音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
       </div>
-      <button class="full" id="save">${isNew ? '送出報名' : '儲存'}</button>
+      <button class="full ${isNew ? 'gold' : ''}" id="save">${isNew ? '送出報名' : '儲存'}</button>
       <p class="msg" id="m"></p>
     </form>
-    ${isNew ? '' : '<p class="center"><a href="#" style="color:var(--muted)">完成，回首頁</a></p>'}`;
+    ${isNew ? '' : '<p class="center"><a href="#">完成，回首頁</a></p>'}`;
 
   const zoneSel = $('#zone'), clubSel = document.getElementById('社名');
   zoneSel.onchange = () => { clubSel.innerHTML = clubOptions(zoneSel.value, ''); };
@@ -357,7 +504,8 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     e.preventDefault();
     const data = {};
     ['社名', '歌名', '原唱', '歌手1本名', '歌手1身份', '歌手1稱謂', 'Email', '電話',
-      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話'].forEach(k => data[k] = document.getElementById(k).value.trim());
+      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話', '決賽曲目', '決賽原唱']
+      .forEach(k => { const el = document.getElementById(k); if (el) data[k] = el.value.trim(); });
     if (data['歌手2本名'] && !data['歌手2身份']) { setMsg(m, '請選擇合唱者身份', 'err'); return; }
     save.disabled = true;
     try {
@@ -402,13 +550,15 @@ async function startJudge(jt) {
   const saved = store(jKey()) || {};
   J.outbox = saved.outbox || {};
   app.className = 'wrap';
-  app.innerHTML = head() + '<p class="sub">載入中…</p>';
+  app.innerHTML = head('評審評分') + '<p class="sub">載入中…</p>';
   try {
     J.data = await api('judge', { jt });
+    // 賽別切換後，舊賽別未送出的分數不能送到新賽別
+    if (saved.data && saved.data.stage !== J.data.stage) J.outbox = {};
     store(jKey(), { outbox: J.outbox, data: J.data });
   } catch (err) {
     if (err instanceof NetError && saved.data) { J.data = saved.data; J.lastError = '目前離線，顯示上次載入的名單'; }
-    else { app.innerHTML = head() + `<div class="banner err">${esc(err.message)}</div>`; return; }
+    else { app.innerHTML = head('評審評分') + `<div class="banner err">${esc(err.message)}</div>`; return; }
   }
   window.addEventListener('online', flushOutbox);
   window.addEventListener('beforeunload', e => { if (J.dirty || Object.keys(J.outbox).length) { e.preventDefault(); e.returnValue = ''; } });
@@ -464,13 +614,13 @@ function drawList() {
   app.className = 'wrap';
   app.innerHTML = `
     <div class="sticky">
-      <div class="row"><div class="grow"><h1 style="margin:0">評審：${esc(d.judge)}</h1><div class="meta">${esc(d.stage)}・已評 ${done} / ${list.length}</div></div></div>
-      <div class="bar ${done === list.length ? 'ok' : ''}" style="margin-top:8px"><i style="width:${list.length ? done / list.length * 100 : 0}%"></i></div>
+      <div class="row"><div class="grow"><h1 style="margin:0">評審：${esc(d.judge)}</h1><div class="meta"><span class="chip gold">${esc(d.stage)}</span>　已評 ${done} / ${list.length}</div></div></div>
+      <div class="bar ${done === list.length ? 'ok' : ''}" style="margin-top:10px"><i style="width:${list.length ? done / list.length * 100 : 0}%"></i></div>
     </div>
     ${d.scoringOpen ? '' : '<div class="banner err">評分已關閉，只能查看，無法修改分數。</div>'}
     ${statusLine()}
-    ${firstTodo >= 0 && d.scoringOpen ? `<button class="full" id="next" style="margin-bottom:4px">從第 ${firstTodo + 1} 位（${esc(list[firstTodo].singers)}）開始評分</button>` : ''}
-    ${done === list.length && list.length ? '<div class="banner" style="background:var(--ok-bg);color:var(--ok)">全部評完了，辛苦了。點任何一位可以修改分數。</div>' : ''}
+    ${firstTodo >= 0 && d.scoringOpen ? `<button class="full gold" id="next" style="margin-bottom:4px">從第 ${firstTodo + 1} 位（${esc(list[firstTodo].singers)}）開始評分</button>` : ''}
+    ${done === list.length && list.length ? '<div class="banner ok">全部評完了，辛苦了。點任何一位可以修改分數。</div>' : ''}
     <div class="tabs">
       ${[['all', '全部'], ['todo', '未評'], ['done', '已評']].map(([k, t]) => `<button class="${J.filter === k ? '' : 'ghost'}" data-f="${k}">${t} ${counts[k]}</button>`).join('')}
     </div>
@@ -497,7 +647,7 @@ function drawScore() {
     <div class="sticky">
       <div class="nav">
         <button class="ghost" id="toList">‹ 名單</button>
-        <span class="meta">${J.idx + 1} / ${list.length}</span>
+        <span class="meta"><span class="chip gold">${esc(d.stage)}</span> ${J.idx + 1} / ${list.length}</span>
         <span><button class="ghost" id="prev" ${J.idx === 0 ? 'disabled' : ''} aria-label="上一位">‹</button>
         <button class="ghost" id="nextP" ${isLast ? 'disabled' : ''} aria-label="下一位">›</button></span>
       </div>
@@ -509,9 +659,9 @@ function drawScore() {
         ${e.photoId ? `<img class="thumb" src="${thumbUrl(e.photoId)}" alt="">` : '<div class="thumb"></div>'}
         <div class="grow">
           <div class="meta">${e.order !== '' ? '出場 ' + esc(e.order) + '・' : ''}${esc(e.id)}・${esc(e.club)}</div>
-          <div class="name" style="font-size:20px;line-height:1.3">${esc(e.singers)}</div>
+          <div class="name" style="font-size:20px;line-height:1.3;font-family:var(--serif)">${esc(e.singers)}</div>
           <div>${esc(e.song || '曲目未定')}${e.artist ? ' <span class="meta">／' + esc(e.artist) + '</span>' : ''}</div>
-          ${e.audio ? `<a class="small" href="${esc(e.audio)}" target="_blank" rel="noopener" style="color:var(--primary)">開啟音檔</a>` : ''}
+          ${e.audio ? `<a class="small" href="${esc(e.audio)}" target="_blank" rel="noopener">開啟音檔</a>` : ''}
         </div>
       </div>
     </div>
@@ -532,7 +682,7 @@ function drawScore() {
     </form>
     <div class="actionbar"><div class="in">
       <div class="total grow">總分 <b id="tot">—</b> / ${d.criteria.reduce((s, c) => s + c.max, 0)}</div>
-      ${ro ? '' : `<button id="save">${isLast ? '儲存' : '儲存，下一位'}</button>`}
+      ${ro ? '' : `<button class="gold" id="save">${isLast ? '儲存' : '儲存，下一位'}</button>`}
     </div></div>`;
 
   const form = $('#sf');
@@ -601,7 +751,7 @@ async function flushOutbox() {
     for (const id of ids) {
       const p = J.outbox[id];
       try {
-        const r = await api('score', { jt: J.jt, id, items: p.items, comment: p.comment });
+        const r = await api('score', { jt: J.jt, stage: J.data.stage, id, items: p.items, comment: p.comment });
         const e = J.data.entries.find(x => x.id === id);
         if (e) e.score = { items: p.items, comment: p.comment, total: r.total };
         if (J.outbox[id] && J.outbox[id].ts === p.ts) delete J.outbox[id];
@@ -622,14 +772,14 @@ async function flushOutbox() {
 
 // =================== 主辦 ===================
 
-const A = { at: '', data: null, timer: null, view: 'rank' };
+const A = { at: '', data: null, timer: null, tab: 'rank', picks: null };
 
 async function startAdmin(at) {
   A.at = at;
   app.className = 'wrap wide';
-  app.innerHTML = head() + '<p class="sub">載入中…</p>';
+  app.innerHTML = head('主辦管理') + '<p class="sub">載入中…</p>';
   await loadAdmin();
-  A.timer = setInterval(loadAdmin, 30000);
+  A.timer = setInterval(() => { if (A.tab === 'rank') loadAdmin(); }, 30000);
 }
 
 async function loadAdmin() {
@@ -639,26 +789,66 @@ async function loadAdmin() {
     A.err = '';
   } catch (err) {
     A.err = err.message;
-    if (!A.data) { app.innerHTML = head() + `<div class="banner err">${esc(err.message)}</div>`; clearInterval(A.timer); return; }
+    if (!A.data) { app.innerHTML = head('主辦管理') + `<div class="banner err">${esc(err.message)}</div>`; clearInterval(A.timer); return; }
   }
   drawAdmin();
 }
 
+async function adminCall(action, payload, okText) {
+  const sm = $('#sm');
+  app.querySelectorAll('[data-act]').forEach(b => b.disabled = true);
+  if (sm) setMsg(sm, '更新中…');
+  try {
+    A.data = await api(action, { at: A.at, ...payload });
+    A.data.loadedAt = new Date();
+    A.picks = null;
+    drawAdmin();
+    toast(okText || '已更新');
+  } catch (err) {
+    if (sm) setMsg(sm, err.message, 'err');
+    app.querySelectorAll('[data-act]').forEach(b => b.disabled = false);
+  }
+}
+
 function drawAdmin() {
+  const d = A.data, t = d.loadedAt;
+  const time = [t.getHours(), t.getMinutes(), t.getSeconds()].map(n => String(n).padStart(2, '0')).join(':');
+  const tabs = [['rank', `${d.stage}名次`], ['advance', '晉級決賽'], ['settings', '賽程與開關']];
+  app.innerHTML = `
+    <h1>主辦管理</h1>
+    <p class="sub"><span class="chip gold">目前賽程：${esc(d.stage)}</span>　報名 ${d.registered} / 70 組・最後更新 ${time}
+      <button class="link" id="reload">立即更新</button></p>
+    ${A.err ? `<div class="banner err">更新失敗：${esc(A.err)}</div>` : ''}
+    <div class="tabs">${tabs.map(([k, l]) => `<button class="${A.tab === k ? '' : 'ghost'}" data-tab="${k}">${l}</button>`).join('')}</div>
+    <div id="tabBody"></div>`;
+  $('#reload').onclick = loadAdmin;
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { A.tab = b.dataset.tab; drawAdmin(); });
+  const body = $('#tabBody');
+  if (A.tab === 'rank') drawAdminRank(body);
+  else if (A.tab === 'advance') drawAdminAdvance(body);
+  else drawAdminSettings(body);
+}
+
+function drawAdminRank(body) {
   const d = A.data, total = d.total;
   const allDone = d.judges.every(j => j.done === total);
   const ranked = d.results.filter(r => r.rank !== '').sort((a, b) => a.rank - b.rank);
   const unranked = d.results.filter(r => r.rank === '');
-  const t = d.loadedAt;
-  app.innerHTML = `
-    <h1>主辦即時名次</h1>
-    <p class="sub">${esc(d.stage)}・每 30 秒自動更新・最後更新 ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}
-      <button class="link" id="reload">立即更新</button></p>
-    ${A.err ? `<div class="banner err">更新失敗：${esc(A.err)}</div>` : ''}
+  const pubKey = d.stage + '公布名次', detKey = d.stage + '公布評分細節';
+  body.innerHTML = `
     <div class="card">
-      ${switchRow('開放評分', d.settings.scoringOpen, '評分開放中，評審可以修改分數', '評分已鎖定，評審只能查看', '開放評分', '鎖定評分')}
-      ${switchRow('公布名次', d.settings.ranksPublic, '名次已公布，所有人都看得到', '名次未公布', '公布名次', '取消公布')}
-      ${switchRow('公布評分細節', d.settings.detailPublic, '細節已公布，選手可用 Email 查分數與評語', '評分細節未公布', '公布細節', '取消公布')}
+      <div class="switch">
+        <div class="grow small">${d.switches['開放評分'] ? '評分開放中，評審可以修改分數。每 30 秒自動更新名次。' : '評分已鎖定，評審只能查看。'}</div>
+        <button data-act data-key="開放評分" data-on="${d.switches['開放評分'] ? 0 : 1}" class="${d.switches['開放評分'] ? 'ghost' : ''}">${d.switches['開放評分'] ? '鎖定評分' : '開放評分'}</button>
+      </div>
+      <div class="switch">
+        <div class="grow small">${d.switches[pubKey] ? `${d.stage}名次已公布。` : `${d.stage}名次未公布，只有你看得到。`}</div>
+        <button data-act data-key="${pubKey}" data-on="${d.switches[pubKey] ? 0 : 1}" class="${d.switches[pubKey] ? 'ghost' : 'gold'}">${d.switches[pubKey] ? '取消公布名次' : '公布名次'}</button>
+      </div>
+      <div class="switch">
+        <div class="grow small">${d.switches[detKey] ? `${d.stage}評分細節已公布，選手可用 Email 查詢。` : `${d.stage}評分細節未公布。`}</div>
+        <button data-act data-key="${detKey}" data-on="${d.switches[detKey] ? 0 : 1}" class="${d.switches[detKey] ? 'ghost' : 'gold'}">${d.switches[detKey] ? '取消公布細節' : '公布細節'}</button>
+      </div>
       <p class="msg" id="sm"></p>
     </div>
     <div class="grid" style="margin-bottom:12px">${d.judges.map(j => `
@@ -677,41 +867,95 @@ function drawAdmin() {
         <div style="text-align:right"><div class="stat" style="font-size:24px">${fmt(r.total)}</div><div class="meta small">總分</div></div>
       </div>`).join('') || '<div class="item" style="cursor:default"><span class="meta">還沒有任何評分</span></div>'}</div>
     ${unranked.length ? `<p class="meta" style="margin-top:12px">尚未有評分：${unranked.map(r => esc(r.singers)).join('、')}</p>` : ''}`;
-  $('#reload').onclick = loadAdmin;
-  app.querySelectorAll('[data-sw]').forEach(b => b.onclick = () => toggleSwitch(b.dataset.sw, b.dataset.on === '1'));
+  bindSwitches(body);
 }
 
-function switchRow(key, on, onText, offText, turnOn, turnOff) {
-  return `<div class="row" style="padding:8px 0;border-top:1px solid var(--line)">
-    <span class="chip ${on ? 'ok' : ''}">${on ? '●' : '○'}</span>
-    <div class="grow small">${on ? onText : offText}</div>
-    <button class="${on ? 'ghost' : ''}" style="padding:8px 14px;min-height:40px;font-size:14px" data-sw="${key}" data-on="${on ? 0 : 1}">${on ? turnOff : turnOn}</button>
-  </div>`;
-}
-
-const SWITCH_CONFIRM = {
-  '開放評分:1': '重新開放評分？評審可以再修改分數，名次可能會變動。',
-  '開放評分:0': '鎖定評分？評審將無法再修改分數。',
-  '公布名次:1': '公布名次？所有人都能在首頁看到名次列表，同時會鎖定評分。',
-  '公布名次:0': '取消公布名次？首頁將不再顯示名次。',
-  '公布評分細節:1': '公布評分細節？選手可以用 Email 查到自己的各項分數與評語，同時會鎖定評分。',
-  '公布評分細節:0': '取消公布評分細節？選手將查不到分數與評語。',
+const SWITCH_TEXT = {
+  開放評分: ['重新開放評分？評審可以再修改分數，名次可能會變動。', '鎖定評分？評審將無法再修改分數。'],
+  開放報名: ['開放報名？首頁會出現「我要報名」。', '關閉報名？首頁不再顯示「我要報名」。'],
+  開放補資料: ['開放補資料？已報名的人可以登入修改資料。', '關閉補資料？參賽者將無法再修改資料。'],
 };
+function switchConfirm(key, on) {
+  if (SWITCH_TEXT[key]) return SWITCH_TEXT[key][on ? 0 : 1];
+  const stage = key.slice(0, 2), what = key.includes('名次') ? '名次' : '評分細節';
+  const lock = stage === A.data.stage ? '，同時會鎖定評分' : '';
+  return on ? `公布${stage}${what}？${what === '名次' ? '所有人都能在首頁看到名次列表' : '選手可以用 Email 查到自己的分數與評語'}${lock}。` : `取消公布${stage}${what}？`;
+}
+function bindSwitches(body) {
+  body.querySelectorAll('[data-key]').forEach(b => b.onclick = () => {
+    const on = b.dataset.on === '1';
+    if (confirm(switchConfirm(b.dataset.key, on))) adminCall('adminSet', { key: b.dataset.key, value: on });
+  });
+}
 
-async function toggleSwitch(key, value) {
-  if (!confirm(SWITCH_CONFIRM[key + ':' + (value ? 1 : 0)])) return;
-  const sm = $('#sm');
-  app.querySelectorAll('[data-sw]').forEach(b => b.disabled = true);
-  setMsg(sm, '更新中…');
-  try {
-    A.data = await api('adminSet', { at: A.at, key, value });
-    A.data.loadedAt = new Date();
-    drawAdmin();
-    toast('已更新');
-  } catch (err) {
-    setMsg(sm, err.message, 'err');
-    app.querySelectorAll('[data-sw]').forEach(b => b.disabled = false);
-  }
+function drawAdminAdvance(body) {
+  const d = A.data;
+  if (!A.picks) A.picks = new Set(d.advance.filter(x => x.advanced).map(x => x.id));
+  const count = () => A.picks.size;
+  const saved = new Set(d.advance.filter(x => x.advanced).map(x => x.id));
+  const changed = () => count() !== saved.size || [...A.picks].some(id => !saved.has(id));
+  body.innerHTML = `
+    <div class="card">
+      <div class="row"><div class="grow"><div class="name">晉級決賽名單</div><div class="meta">依初賽名次排列，逐一勾選晉級者。名額 ${d.quota} 位。</div></div>
+      <span class="chip ${count() === d.quota ? 'ok' : 'warn'}" id="cnt">已勾選 ${count()} / ${d.quota}</span></div>
+      <p class="meta small" style="margin:8px 0 0">晉級者登入「補填／修改資料」後會看到決賽曲目欄位。也可以直接在 Sheet「報名」表的「晉級決賽」欄填「是」。</p>
+    </div>
+    <div class="list">${d.advance.map(x => `
+      <label class="item" style="margin:0;font-weight:400">
+        <input type="checkbox" class="check" data-id="${esc(x.id)}" ${A.picks.has(x.id) ? 'checked' : ''}>
+        <div class="rank ${x.rank !== '' && x.rank <= 3 ? 'top' : ''}" style="width:38px;height:38px;font-size:15px">${x.rank === '' ? '—' : x.rank}</div>
+        <div class="grow"><div class="name ellipsis">${esc(x.singers)}</div><div class="meta">${esc(x.id)}・${esc(x.club)}</div></div>
+        <div class="meta">${fmt(x.total)}</div>
+      </label>`).join('')}</div>
+    <div class="actionbar"><div class="in" style="max-width:980px">
+      <div class="grow small" id="hint">${changed() ? '有尚未儲存的變更' : '名單已是最新'}</div>
+      <button class="gold" data-act id="saveAdv">儲存晉級名單</button>
+    </div></div>
+    <p class="msg" id="sm"></p>`;
+  body.querySelectorAll('input[data-id]').forEach(cb => cb.onchange = () => {
+    if (cb.checked) A.picks.add(cb.dataset.id); else A.picks.delete(cb.dataset.id);
+    const c = $('#cnt'); c.textContent = `已勾選 ${count()} / ${d.quota}`; c.className = 'chip ' + (count() === d.quota ? 'ok' : 'warn');
+    $('#hint').textContent = changed() ? '有尚未儲存的變更' : '名單已是最新';
+  });
+  $('#saveAdv').onclick = () => {
+    const n = count();
+    const warn = n !== d.quota ? `\n注意：勾選 ${n} 位，和名額 ${d.quota} 位不同。` : '';
+    if (confirm(`儲存晉級名單，共 ${n} 位？${warn}`)) adminCall('adminAdvance', { ids: [...A.picks] }, '晉級名單已儲存');
+  };
+}
+
+function drawAdminSettings(body) {
+  const d = A.data, sw = d.switches;
+  const row = (key, onText, offText, onBtn, offBtn) => `<div class="switch">
+    <span class="chip ${sw[key] ? 'ok' : ''}">${sw[key] ? '開' : '關'}</span>
+    <div class="grow small">${sw[key] ? onText : offText}</div>
+    <button data-act data-key="${key}" data-on="${sw[key] ? 0 : 1}" class="${sw[key] ? 'ghost' : ''}">${sw[key] ? offBtn : onBtn}</button></div>`;
+  const next = d.stages.find(s => s !== d.stage);
+  body.innerHTML = `
+    <div class="card">
+      <h2>目前賽程：${esc(d.stage)}</h2>
+      <p class="meta" style="margin:0 0 12px">評審頁會依目前賽程顯示名單。切換到決賽後，評審只會看到勾選晉級的人，曲目改為決賽曲目；初賽分數會保留。</p>
+      <button data-act id="stageBtn" class="${next === '決賽' ? 'gold' : 'ghost'}">切換到${esc(next)}</button>
+    </div>
+    <div class="card">
+      <h2>報名與資料</h2>
+      ${row('開放報名', '首頁顯示「我要報名」。', '報名已關閉。', '開放報名', '關閉報名')}
+      ${row('開放補資料', '參賽者可以登入補填或修改資料。', '補資料已關閉。', '開放補資料', '關閉補資料')}
+    </div>
+    <div class="card">
+      <h2>評分與公布</h2>
+      ${row('開放評分', '評審可以評分與修改分數。', '評分已鎖定。', '開放評分', '鎖定評分')}
+      ${d.stages.map(st => row(st + '公布名次', `${st}名次已公布。`, `${st}名次未公布。`, `公布${st}名次`, '取消公布')
+        + row(st + '公布評分細節', `${st}評分細節已公布。`, `${st}評分細節未公布。`, `公布${st}細節`, '取消公布')).join('')}
+      <p class="msg" id="sm"></p>
+    </div>`;
+  bindSwitches(body);
+  $('#stageBtn').onclick = () => {
+    const msg = next === '決賽'
+      ? `切換到決賽？評審頁將改為決賽名單（已勾選 ${d.advance.filter(x => x.advanced).length} 位晉級者），並重新開放評分。`
+      : '切換回初賽？評審頁將改回初賽名單，並重新開放評分。';
+    if (confirm(msg)) adminCall('adminStage', { stage: next }, '已切換到' + next);
+  };
 }
 
 // =================== 啟動 ===================
@@ -720,6 +964,7 @@ function homeRoute() {
   const h = location.hash;
   if (h === '#ranks') renderRanks();
   else if (h === '#me') renderMe();
+  else if (h === '#rules') renderRules();
   else if (h === '#profile') renderProfileLogin();
   else if (h === '#register') renderRegister();
   else renderHome();
