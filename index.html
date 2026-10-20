@@ -207,9 +207,11 @@ const anyPub = k => cfg && Object.values(cfg.published).some(p => p[k]);
 
 // =================== 首頁 ===================
 
+// 以台北時間的日曆天計算：截止日當天回傳 0，已過回傳 -1
 function daysLeft() {
-  const ms = EVENT.deadline - Date.now();
-  return ms < 0 ? -1 : Math.ceil(ms / 86400000);
+  if (Date.now() > EVENT.deadline) return -1;
+  const day = t => Math.floor((t.getTime() + 8 * 3600000) / 86400000);
+  return day(EVENT.deadline) - day(new Date());
 }
 
 function renderHome() {
@@ -225,7 +227,7 @@ function renderHome() {
   if (acts.length % 2 === 1 && acts.length > 1) acts[acts.length - 1] = acts[acts.length - 1].replace('class="btn ', 'class="btn wide ');
   app.innerHTML = `
     <section class="hero">
-      <div class="notes" aria-hidden="true"><span style="left:6%;top:14%">♪</span><span style="right:8%;top:30%;font-size:34px">♫</span><span style="left:12%;bottom:18%;font-size:22px">♩</span><span style="right:16%;bottom:12%">♪</span></div>
+      <div class="notes" aria-hidden="true"><span style="left:6%;top:14%">♪</span><span style="right:5%;top:6%;font-size:30px">♫</span><span style="left:12%;bottom:18%;font-size:22px">♩</span><span style="right:16%;bottom:12%">♪</span></div>
       <div class="org">Rotary <b>·</b> District 3481</div>
       <div class="edition">3481 地區第 6 屆</div>
       <div class="title">扶輪好聲音</div>
