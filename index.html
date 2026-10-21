@@ -167,7 +167,8 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
 // 後台單次接收上限約 50MB，檔案編碼後會變大三分之一，所以單檔與單次合計都抓 35MB
 const MAX_AUDIO_MB = 35;
-const AUDIO_TIP = '可上傳 MP4、MP3 或 M4A，35MB 以內；WAV 等無損格式檔案太大，可能無法上傳';
+const AUDIO_TIP = '可上傳 MP4、MP3 或 M4A，35MB 以內。<b>超過 35MB 請不要上傳檔案，改在下方貼雲端下載連結</b>，主辦單位會協助下載。';
+const LINK_TIP = '例如 Google 雲端硬碟、Dropbox 的分享連結，請把權限設為「知道連結的人都能檢視」。不接受 YouTube 連結。';
 const AUDIO_ACCEPT = 'audio/*,video/mp4,.mp4,.m4a,.mp3';
 const TITLE = '扶輪好聲音歌唱比賽';
 // 海報上的活動資訊；日期是民國年，倒數用西元時間計算
@@ -497,6 +498,9 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <label for="finalAudio">決賽音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.finalAudio ? '，已上傳，重新選擇會取代' : ''}</span></label>
         <input id="finalAudio" type="file" accept="${AUDIO_ACCEPT}">
         <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
+        <label for="決賽音檔雲端連結">或：決賽音檔雲端下載連結 <span class="opt">檔案超過 35MB 時填寫</span></label>
+        <input id="決賽音檔雲端連結" type="url" inputmode="url" placeholder="https://drive.google.com/…" value="${v('決賽音檔雲端連結')}">
+        <p class="meta" style="margin:6px 0 0">${LINK_TIP}</p>
       </div>` : ''}
       <div class="card">
         <h2>所屬社團</h2>
@@ -521,6 +525,9 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <label for="audio" style="margin-top:0">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="${AUDIO_ACCEPT}">
         <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
+        <label for="音檔雲端連結">或：音檔雲端下載連結 <span class="opt">檔案超過 35MB 時填寫</span></label>
+        <input id="音檔雲端連結" type="url" inputmode="url" placeholder="https://drive.google.com/…" value="${v('音檔雲端連結')}">
+        <p class="meta" style="margin:6px 0 0">${LINK_TIP}</p>
       </div>
       <button class="full ${isNew ? 'gold' : ''}" id="save">${isNew ? '送出報名' : '儲存'}</button>
       <p class="msg" id="m"></p>
@@ -541,18 +548,19 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     e.preventDefault();
     const data = {};
     ['社名', '歌名', '原唱', '歌手1本名', '歌手1身份', '歌手1稱謂', 'Email', '電話',
-      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話', '初賽語種', '決賽曲目', '決賽原唱', '決賽語種']
+      '歌手2本名', '歌手2身份', '歌手2稱謂', '歌手2Email', '歌手2電話', '初賽語種', '決賽曲目', '決賽原唱', '決賽語種', '音檔雲端連結', '決賽音檔雲端連結']
       .forEach(k => { const el = document.getElementById(k); if (el) data[k] = el.value.trim(); });
     if (data['歌手2本名'] && !data['歌手2身份']) { setMsg(m, '請選擇合唱者身份', 'err'); return; }
     if (data['歌名'] && !data['初賽語種']) { setMsg(m, '請選擇初賽曲目的語種', 'err'); return; }
     if (data['決賽曲目'] && !data['決賽語種']) { setMsg(m, '請選擇決賽曲目的語種', 'err'); return; }
+    if (['音檔雲端連結', '決賽音檔雲端連結'].some(k => /youtu\.?be/i.test(data[k] || ''))) { setMsg(m, '不接受 YouTube 連結，請提供音檔本身的雲端下載連結', 'err'); return; }
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
       const photo2 = data['歌手2本名'] && $('#photo2').files[0];
       const finalAudio = $('#finalAudio') && $('#finalAudio').files[0];
       const MB = 1024 * 1024;
-      if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * MB)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請改用 MP4 或 MP3 並降低畫質／音質後再上傳`);
+      if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * MB)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，無法直接上傳。請取消選擇檔案，改把檔案放到雲端（例如 Google 雲端硬碟），在「雲端下載連結」欄貼上分享連結`);
       if ((audio ? audio.size : 0) + (finalAudio ? finalAudio.size : 0) > MAX_AUDIO_MB * MB) throw new Error(`兩個音檔合計超過 ${MAX_AUDIO_MB}MB，請分兩次上傳：先選一個儲存，再選另一個儲存`);
       const payload = { as: me, data };
       if (finalAudio) payload.finalAudio = { name: finalAudio.name, data: await readDataUrl(finalAudio) };
@@ -999,6 +1007,12 @@ function drawAdminSettings(body) {
       ${row('開放補資料', '參賽者可以登入補填或修改資料。', '補資料已關閉。', '開放補資料', '關閉補資料')}
     </div>
     <div class="card">
+      <h2>雲端音檔</h2>
+      <p class="meta" style="margin:0 0 12px">參賽者若檔案超過 35MB，會改貼雲端下載連結。按下按鈕後，Google 雲端硬碟的連結會自動複製到「音檔」資料夾；其他雲端的連結會列在下方，需要另外下載。</p>
+      <button data-act id="fetchAudio" class="ghost">抓取雲端音檔</button>
+      <div id="fetchOut"></div>
+    </div>
+    <div class="card">
       <h2>評分與公布</h2>
       ${row('開放評分', '評審可以評分與修改分數。', '評分已鎖定。', '開放評分', '鎖定評分')}
       ${d.stages.map(st => row(st + '公布名次', `${st}名次已公布。`, `${st}名次未公布。`, `公布${st}名次`, '取消公布')
@@ -1006,6 +1020,19 @@ function drawAdminSettings(body) {
       <p class="msg" id="sm"></p>
     </div>`;
   bindSwitches(body);
+  $('#fetchAudio').onclick = async () => {
+    const out = $('#fetchOut'), btn = $('#fetchAudio');
+    btn.disabled = true; out.innerHTML = '<p class="meta">處理中，檔案大的話要等一下…</p>';
+    try {
+      const r = await api('adminFetchAudio', { at: A.at });
+      const li = (x, extra) => `<li>${esc(x.who)}・${esc(x.col.replace('連結', ''))}${extra}</li>`;
+      out.innerHTML = (!r.fetched.length && !r.manual.length && !r.failed.length) ? '<p class="meta">目前沒有待處理的雲端連結。</p>' : `
+        ${r.fetched.length ? `<p class="msg ok">已下載 ${r.fetched.length} 個</p><ul class="small">${r.fetched.map(x => li(x, '：' + esc(x.name))).join('')}</ul>` : ''}
+        ${r.failed.length ? `<p class="msg err">${r.failed.length} 個無法存取</p><ul class="small">${r.failed.map(x => li(x, `：${esc(x.reason)}<br><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a>`)).join('')}</ul>` : ''}
+        ${r.manual.length ? `<p class="msg">${r.manual.length} 個需要手動下載（非 Google 雲端硬碟）</p><ul class="small">${r.manual.map(x => li(x, `：<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a>`)).join('')}</ul>` : ''}`;
+    } catch (err) { out.innerHTML = `<p class="msg err">${esc(err.message)}</p>`; }
+    btn.disabled = false;
+  };
   $('#stageBtn').onclick = () => {
     const msg = next === '決賽'
       ? `切換到決賽？評審頁將改為決賽名單（已勾選 ${d.advance.filter(x => x.advanced).length} 位晉級者），並重新開放評分。`
