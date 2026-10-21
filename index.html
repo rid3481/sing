@@ -165,7 +165,9 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
-const MAX_AUDIO_MB = 25;
+// 後台單次接收上限約 50MB，檔案編碼後會變大三分之一，所以單檔與單次合計都抓 35MB
+const MAX_AUDIO_MB = 35;
+const AUDIO_TIP = '建議使用 MP3（一首約 5～12MB）；WAV 等無損格式檔案太大，可能無法上傳';
 const TITLE = '扶輪好聲音歌唱比賽';
 // 海報上的活動資訊；日期是民國年，倒數用西元時間計算
 const EVENT = {
@@ -493,6 +495,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
         <label for="finalAudio">決賽音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.finalAudio ? '，已上傳，重新選擇會取代' : ''}</span></label>
         <input id="finalAudio" type="file" accept="audio/*">
+        <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
       </div>` : ''}
       <div class="card">
         <h2>所屬社團</h2>
@@ -516,6 +519,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <h2>音檔</h2>
         <label for="audio" style="margin-top:0">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
+        <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
       </div>
       <button class="full ${isNew ? 'gold' : ''}" id="save">${isNew ? '送出報名' : '儲存'}</button>
       <p class="msg" id="m"></p>
@@ -546,7 +550,9 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
       const photo2 = data['歌手2本名'] && $('#photo2').files[0];
       const finalAudio = $('#finalAudio') && $('#finalAudio').files[0];
-      if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * 1024 * 1024)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
+      const MB = 1024 * 1024;
+      if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * MB)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請改用 MP3 或壓縮後再上傳`);
+      if ((audio ? audio.size : 0) + (finalAudio ? finalAudio.size : 0) > MAX_AUDIO_MB * MB) throw new Error(`兩個音檔合計超過 ${MAX_AUDIO_MB}MB，請分兩次上傳：先選一個儲存，再選另一個儲存`);
       const payload = { as: me, data };
       if (finalAudio) payload.finalAudio = { name: finalAudio.name, data: await readDataUrl(finalAudio) };
       if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
