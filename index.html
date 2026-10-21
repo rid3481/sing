@@ -443,12 +443,14 @@ function renderProfileForm(entry, okText = '', isNew = false) {
   const myEmailKey = me === 2 ? '歌手2Email' : 'Email';
   const myName = me === 2 ? entry['歌手2本名'] : entry['歌手1本名'];
   const missing = isNew ? [] : [!entry[myEmailKey] && '你的 Email', !entry['歌手' + me + '身份'] && '身份',
-    !entry['歌名'] && '初賽曲目', entry['歌名'] && !entry['初賽語種'] && '初賽語種', entry.advanced && !entry['決賽曲目'] && '決賽曲目', !entry.photo && '照片'].filter(Boolean);
+    !entry['歌名'] && '初賽曲目', entry['歌名'] && !entry['初賽語種'] && '初賽語種', entry.advanced && !entry['決賽曲目'] && '決賽曲目', !(me === 2 ? entry.photo2 : entry.photo) && '你的照片'].filter(Boolean);
   const youTag = n => !isNew && n === me ? ' <span class="chip ok">你</span>' : '';
   const zone = entry.zone || zoneOf(entry['社名']);
   const singer = (n, title) => {
     const k = f => (n === 1 ? { 本名: '歌手1本名', 身份: '歌手1身份', 稱謂: '歌手1稱謂', Email: 'Email', 電話: '電話' } : { 本名: '歌手2本名', 身份: '歌手2身份', 稱謂: '歌手2稱謂', Email: '歌手2Email', 電話: '歌手2電話' })[f];
     const mine = n === me, partner = n === 2 && !mine;
+    // 兩位歌手各自一張照片：歌手 1 存「照片連結」，歌手 2 存「歌手2照片連結」
+    const pk = n === 1 ? 'photo' : 'photo2', pUrl = n === 1 ? entry.photo : entry.photo2, pId = n === 1 ? entry.photoId : entry.photo2Id;
     return `<div class="card">
       <h2>${title}${youTag(n)}</h2>
       <label for="${k('本名')}" style="margin-top:0">本名 ${partner ? '<span class="opt">獨唱請留空</span>' : ''}</label>
@@ -463,6 +465,9 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <input id="${k('電話')}" type="tel" value="${v(k('電話'))}">
         <label for="${k('稱謂')}">稱謂 <span class="opt">選填，例如 PP Grace</span></label>
         <input id="${k('稱謂')}" type="text" value="${v(k('稱謂'))}">
+        <label for="${pk}">照片 <span class="opt">${pUrl ? '已上傳，重新選擇會取代' : '選填，可直接用手機拍照'}</span></label>
+        ${pId ? `<img class="thumb" src="${thumbUrl(pId)}" alt="" style="margin-bottom:8px">` : ''}
+        <input id="${pk}" type="file" accept="image/*">
       </div>
     </div>`;
   };
@@ -471,7 +476,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     <div class="card" style="border-color:var(--gold-2)">
       ${isNew ? '<h1 style="margin:0">我要報名</h1><p class="meta" style="margin:6px 0 0">合唱請在「合唱者」填第二位歌手。送出前可先閱讀<a href="#rules">比賽辦法</a>。</p>' : `
       <div class="row">
-        ${entry.photoId ? `<img class="thumb" src="${thumbUrl(entry.photoId)}" alt="">` : ''}
+        ${(me === 2 ? entry.photo2Id : entry.photoId) ? `<img class="thumb" src="${thumbUrl(me === 2 ? entry.photo2Id : entry.photoId)}" alt="">` : ''}
         <div class="grow"><div class="name" style="font-size:20px;font-family:var(--serif)">${esc(myName)} ${entry.advanced ? '<span class="chip gold">晉級決賽</span>' : ''}</div>
         <div class="meta">${esc(entry.id)}・${esc(zone)}・${esc(entry['社名'])}</div></div>
       </div>`}
@@ -508,10 +513,8 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       ${singer(1, '歌手')}
       ${singer(2, '合唱者 <span class="opt">選填</span>')}
       <div class="card">
-        <h2>照片與音檔</h2>
-        <label for="photo" style="margin-top:0">照片 <span class="opt">${entry.photo ? '已上傳，重新選擇會取代' : '選填'}</span></label>
-        <input id="photo" type="file" accept="image/*">
-        <label for="audio">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
+        <h2>音檔</h2>
+        <label for="audio" style="margin-top:0">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="audio/*">
       </div>
       <button class="full ${isNew ? 'gold' : ''}" id="save">${isNew ? '送出報名' : '儲存'}</button>
@@ -541,6 +544,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
     save.disabled = true;
     try {
       const photo = $('#photo').files[0], audio = $('#audio').files[0];
+      const photo2 = data['歌手2本名'] && $('#photo2').files[0];
       const finalAudio = $('#finalAudio') && $('#finalAudio').files[0];
       if ([audio, finalAudio].some(f => f && f.size > MAX_AUDIO_MB * 1024 * 1024)) throw new Error(`音檔超過 ${MAX_AUDIO_MB}MB，請壓縮後再上傳`);
       const payload = { as: me, data };
@@ -548,6 +552,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       if (!isNew) Object.assign(payload, { id: entry.id, token: entry.token });
       setMsg(m, '處理檔案中…');
       if (photo) payload.photo = await shrinkImage(photo);
+      if (photo2) payload.photo2 = await shrinkImage(photo2);
       if (audio) payload.audio = { name: audio.name, data: await readDataUrl(audio) };
       setMsg(m, isNew ? '送出中，請稍候…' : '上傳中，請稍候…');
       const r = await api('save', payload);
@@ -689,7 +694,10 @@ function drawScore() {
     <div id="status">${statusLine()}</div>
     <div class="card">
       <div class="row">
-        ${e.photoId ? `<img class="thumb" src="${thumbUrl(e.photoId)}" alt="">` : '<div class="thumb"></div>'}
+        <div style="display:flex;flex-direction:column;gap:6px;flex:none">
+          ${e.photoId ? `<img class="thumb" src="${thumbUrl(e.photoId)}" alt="">` : '<div class="thumb"></div>'}
+          ${e.photo2Id ? `<img class="thumb" src="${thumbUrl(e.photo2Id)}" alt="">` : ''}
+        </div>
         <div class="grow">
           <div class="meta">${e.order !== '' ? '出場 ' + esc(e.order) + '・' : ''}${esc(e.id)}・${esc(e.club)}</div>
           <div class="name" style="font-size:20px;line-height:1.3;font-family:var(--serif)">${esc(e.singers)}</div>
