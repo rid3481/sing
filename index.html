@@ -709,7 +709,6 @@ function drawScore() {
           <div class="meta">${e.order !== '' ? '出場 ' + esc(e.order) + '・' : ''}${esc(e.id)}・${esc(e.club)}</div>
           <div class="name" style="font-size:20px;line-height:1.3;font-family:var(--serif)">${esc(e.singers)}</div>
           <div>${esc(e.song || '曲目未定')}${e.artist ? ' <span class="meta">／' + esc(e.artist) + '</span>' : ''}${e.lang ? ' <span class="chip">' + esc(e.lang) + '</span>' : ''}</div>
-          ${e.audio ? `<a class="small" href="${esc(e.audio)}" target="_blank" rel="noopener">開啟音檔</a>` : ''}
         </div>
       </div>
     </div>
