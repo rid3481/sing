@@ -872,7 +872,7 @@ function drawAdmin() {
   const tabs = [['rank', `${d.stage}名次`], ['paper', '紙本輸入'], ['advance', '晉級決賽'], ['settings', '賽程與開關']];
   app.innerHTML = `
     <h1>主辦管理</h1>
-    <p class="sub"><span class="chip gold">目前賽程：${esc(d.stage)}</span>　報名 ${d.registered} / 70 組・最後更新 ${time}
+    <p class="sub"><span class="chip gold">目前賽程：${esc(d.stage)}</span>　報名 ${d.registered} 組・最後更新 ${time}
       <button class="link" id="reload">立即更新</button></p>
     ${A.err ? `<div class="banner err">更新失敗：${esc(A.err)}</div>` : ''}
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${A.tab === k ? '' : 'ghost'}" data-tab="${k}">${l}</button>`).join('')}</div>
