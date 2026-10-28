@@ -337,10 +337,11 @@ const PRELIM_FLOW = [
 ];
 const PRELIM_BLOCKS = [[1, 20, '13:00–14:40'], [21, 40, '14:45–16:25'], [41, 60, '16:30–18:10'], [61, 999, '18:15–19:45']];
 
-// 只突顯「自備伴奏但還沒上傳」；自行彈奏用一般小字；廠商伴唱帶和已上傳不顯示
+// 只突顯「自備伴奏但還沒上傳」；自行彈奏、自備已上傳用一般小字；廠商伴唱帶不顯示
 function accompTag(a) {
   if (!a.ok) return '<span class="chip warn">自備伴奏未上傳</span>';
   if (a.label === '自行彈奏') return '<span class="meta">・自行彈奏</span>';
+  if (a.label === '自備伴奏・已上傳') return '<span class="meta">・自備伴奏已上傳</span>';
   return '';
 }
 
