@@ -353,7 +353,7 @@ async function renderLineup() {
         <div class="meta">${esc(x.club)}</div>
         <div style="margin-top:2px">${x.song ? esc(x.song) + (x.artist ? ` <span class="meta">／${esc(x.artist)}</span>` : '') : '<span class="chip warn">曲目未填</span>'}
           ${x.lang ? `<span class="chip">${esc(x.lang)}</span>` : ''}
-          <span class="chip ${x.audio ? 'ok' : ''}">伴奏${x.audio ? '已上傳' : '未上傳'}</span></div>
+          <span class="chip ${x.accomp.ok ? 'ok' : ''}">${esc(x.accomp.label)}</span></div>
       </div>
     </div>`;
 
