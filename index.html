@@ -167,7 +167,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbyT3LbRsFOZVUBKCF418gB8vAc4HpdIK5HcrQs7JlO_YmOHOa02344t8FtQTjGtfF5h/exec';
 // 後台單次接收上限約 50MB，檔案編碼後會變大三分之一，所以單檔與單次合計都抓 35MB
 const MAX_AUDIO_MB = 35;
-const AUDIO_TIP = '可上傳 MP4、MP3 或 M4A，35MB 以內。<b>超過 35MB 請不要上傳檔案，改在下方貼雲端下載連結</b>，主辦單位會協助下載。';
+const AUDIO_TIP = '<b>使用廠商伴唱帶的人不用上傳</b>，只有自備伴奏才需要。可上傳 MP4、MP3 或 M4A，35MB 以內。<b>超過 35MB 請不要上傳檔案，改在下方貼雲端下載連結</b>，主辦單位會協助下載。';
 const LINK_TIP = '例如 Google 雲端硬碟、Dropbox 的分享連結，請把權限設為「知道連結的人都能檢視」。不接受 YouTube 連結。';
 const AUDIO_ACCEPT = 'audio/*,video/mp4,.mp4,.m4a,.mp3';
 const TITLE = '扶輪好聲音歌唱比賽';
@@ -358,7 +358,7 @@ async function renderLineup() {
     </div>`;
 
   app.innerHTML = pageHead('初賽出場順序', EVENT.prelim.date + '・' + EVENT.prelim.place) + `
-    <div class="banner">請確認自己的序號、姓名、曲目與伴奏。資料有誤請<a href="#profile">登入「補填／修改資料」</a>更正，或洽地區辦公室 <a href="tel:0227005978">02 2700 5978</a>。</div>
+    <div class="banner">請確認自己的序號、姓名、曲目與伴奏。沒有自備伴奏的人一律使用廠商伴唱帶。資料有誤請<a href="#profile">登入「補填／修改資料」</a>更正，或洽地區辦公室 <a href="tel:0227005978">02 2700 5978</a>。</div>
     <div class="card">
       <h2>當天流程</h2>
       ${PRELIM_FLOW.map(([t, a, b]) => `<div class="kv" style="justify-content:flex-start;gap:14px"><span style="flex:none;width:96px;font-weight:700;color:var(--navy)">${t}</span><span>${esc(a)}${b ? `<br><span class="meta">${esc(b)}</span>` : ''}</span></div>`).join('')}
@@ -565,7 +565,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
         <select id="決賽語種">${langOptions(entry['決賽語種'])}</select>
         <label for="決賽原唱">原唱 <span class="opt">選填</span></label>
         <input id="決賽原唱" type="text" value="${v('決賽原唱')}">
-        <label for="finalAudio">決賽音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.finalAudio ? '，已上傳，重新選擇會取代' : ''}</span></label>
+        <label for="finalAudio">決賽自備伴奏音檔 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.finalAudio ? '，已上傳，重新選擇會取代' : ''}</span></label>
         <input id="finalAudio" type="file" accept="${AUDIO_ACCEPT}">
         <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
         <label for="決賽音檔雲端連結">或：決賽音檔雲端下載連結 <span class="opt">檔案超過 35MB 時填寫</span></label>
@@ -592,7 +592,7 @@ function renderProfileForm(entry, okText = '', isNew = false) {
       ${singer(2, '合唱者 <span class="opt">選填</span>')}
       <div class="card">
         <h2>音檔</h2>
-        <label for="audio" style="margin-top:0">${entry.advanced ? '初賽' : ''}音檔／伴唱帶 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
+        <label for="audio" style="margin-top:0">${entry.advanced ? '初賽' : ''}自備伴奏音檔 <span class="opt">選填，${MAX_AUDIO_MB}MB 以內${entry.audio ? '，已上傳' : ''}</span></label>
         <input id="audio" type="file" accept="${AUDIO_ACCEPT}">
         <p class="meta" style="margin:6px 0 0">${AUDIO_TIP}</p>
         <label for="音檔雲端連結">或：音檔雲端下載連結 <span class="opt">檔案超過 35MB 時填寫</span></label>
