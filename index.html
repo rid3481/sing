@@ -365,7 +365,7 @@ async function renderLineup() {
     </div>`;
 
   app.innerHTML = pageHead('初賽出場順序', EVENT.prelim.date + '・' + EVENT.prelim.place) + `
-    <div class="banner">請確認自己的序號、姓名與曲目；自備伴奏的人請確認已上傳。資料有誤請<a href="#profile">登入「補填／修改資料」</a>更正，或洽地區辦公室 <a href="tel:0227005978">02 2700 5978</a>。</div>
+    <div class="banner">請確認自己的序號、姓名、曲目與伴奏。沒有自備伴奏的人一律使用廠商伴唱帶。資料有誤請向選手群組裡反應。</div>
     <div class="card">
       <h2>當天流程</h2>
       ${PRELIM_FLOW.map(([t, a, b]) => `<div class="kv" style="justify-content:flex-start;gap:14px"><span style="flex:none;width:96px;font-weight:700;color:var(--navy)">${t}</span><span>${esc(a)}${b ? `<br><span class="meta">${esc(b)}</span>` : ''}</span></div>`).join('')}
