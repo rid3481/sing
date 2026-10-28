@@ -337,6 +337,13 @@ const PRELIM_FLOW = [
 ];
 const PRELIM_BLOCKS = [[1, 20, '13:00–14:40'], [21, 40, '14:45–16:25'], [41, 60, '16:30–18:10'], [61, 999, '18:15–19:45']];
 
+// 只突顯「自備伴奏但還沒上傳」；自行彈奏用一般小字；廠商伴唱帶和已上傳不顯示
+function accompTag(a) {
+  if (!a.ok) return '<span class="chip warn">自備伴奏未上傳</span>';
+  if (a.label === '自行彈奏') return '<span class="meta">・自行彈奏</span>';
+  return '';
+}
+
 async function renderLineup() {
   app.className = 'wrap';
   app.innerHTML = pageHead('初賽出場順序', EVENT.prelim.date + '・' + EVENT.prelim.place) + '<p class="sub">載入中…</p>';
@@ -353,12 +360,12 @@ async function renderLineup() {
         <div class="meta">${esc(x.club)}</div>
         <div style="margin-top:2px">${x.song ? esc(x.song) + (x.artist ? ` <span class="meta">／${esc(x.artist)}</span>` : '') : '<span class="chip warn">曲目未填</span>'}
           ${x.lang ? `<span class="chip">${esc(x.lang)}</span>` : ''}
-          <span class="chip ${x.accomp.ok ? 'ok' : ''}">${esc(x.accomp.label)}</span></div>
+          ${accompTag(x.accomp)}</div>
       </div>
     </div>`;
 
   app.innerHTML = pageHead('初賽出場順序', EVENT.prelim.date + '・' + EVENT.prelim.place) + `
-    <div class="banner">請確認自己的序號、姓名、曲目與伴奏。沒有自備伴奏的人一律使用廠商伴唱帶。資料有誤請<a href="#profile">登入「補填／修改資料」</a>更正，或洽地區辦公室 <a href="tel:0227005978">02 2700 5978</a>。</div>
+    <div class="banner">請確認自己的序號、姓名與曲目；自備伴奏的人請確認已上傳。資料有誤請<a href="#profile">登入「補填／修改資料」</a>更正，或洽地區辦公室 <a href="tel:0227005978">02 2700 5978</a>。</div>
     <div class="card">
       <h2>當天流程</h2>
       ${PRELIM_FLOW.map(([t, a, b]) => `<div class="kv" style="justify-content:flex-start;gap:14px"><span style="flex:none;width:96px;font-weight:700;color:var(--navy)">${t}</span><span>${esc(a)}${b ? `<br><span class="meta">${esc(b)}</span>` : ''}</span></div>`).join('')}
