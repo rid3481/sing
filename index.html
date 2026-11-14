@@ -181,12 +181,16 @@ const EVENT = {
 const app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
 let cfg = null;
+// 主辦預覽：?preview=主辦代碼#ranks 或 #me，公布前先看畫面（用目前分數，晉級名單未確定時以前 N 名暫代）
+const PREVIEW = params.get('preview') || '';
+const PV_BANNER = () => PREVIEW ? '<div class="banner">主辦預覽模式：一般人還看不到這個畫面。</div>' : '';
 
 class NetError extends Error {}
 
 async function api(action, payload = {}) {
   let res;
   try {
+    if (PREVIEW && (action === 'ranks' || action === 'myResult')) payload = { ...payload, at: PREVIEW };
     res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
   } catch (e) {
     throw new NetError('連線失敗，請檢查網路');
@@ -238,7 +242,9 @@ function renderHome() {
   if (cfg.regOpen) acts.push(`<a class="btn gold ${cfg.profileOpen ? '' : 'wide'}" href="#register">我要報名<small>新參賽者</small></a>`);
   if (cfg.profileOpen) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
   acts.push(`<a class="btn ghost" href="#lineup">初賽出場順序<small>確認序號與曲目</small></a>`);
-  if (anyPub('ranks')) acts.push(`<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`);
+  if (anyPub('ranks')) acts.push(cfg.published['決賽'] && cfg.published['決賽'].ranks
+    ? `<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`
+    : `<a class="btn ghost" href="#ranks">決賽入圍名單<small>不用登入</small></a>`);
   if (anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
   // 決賽專區獨佔一列；其餘按鈕兩兩一列，落單的撐滿
   if (cfg.finalsReady && cfg.profileOpen) acts[0] = acts[0].replace('class="btn ', 'class="btn wide ');
@@ -400,17 +406,29 @@ async function renderLineup() {
 
 async function renderRanks(pick) {
   app.className = 'wrap';
+  const title = s => s && s.kind === 'finalists' ? '決賽入圍名單' : '名次公告';
   app.innerHTML = pageHead('名次公告') + '<p class="sub">載入中…</p>';
   try {
     const r = await api('ranks');
     if (!r.stages.length) { app.innerHTML = pageHead('名次公告') + '<div class="card center">名次尚未公布</div>'; return; }
     const cur = r.stages.find(s => s.stage === pick) || r.stages[0];
-    app.innerHTML = pageHead('名次公告') + (r.stages.length > 1 ? `<div class="tabs">${r.stages.map(s =>
-      `<button class="${s === cur ? '' : 'ghost'}" data-s="${esc(s.stage)}">${esc(s.stage)}</button>`).join('')}</div>` : `<p class="sub">${esc(cur.stage)}</p>`)
-      + (cur.list.length ? `<div class="list">${cur.list.map(x => `
+    const tabs = r.stages.length > 1 ? `<div class="tabs">${r.stages.map(s =>
+      `<button class="${s === cur ? '' : 'ghost'}" data-s="${esc(s.stage)}">${esc(title(s))}</button>`).join('')}</div>` : '';
+    let body;
+    if (cur.kind === 'finalists') {
+      body = (cur.provisional ? '<div class="banner">晉級名單還沒在主辦頁確認，下面暫以目前名次前幾名顯示。</div>' : '')
+        + (cur.list.length ? `<p class="sub">恭喜以下 ${cur.list.length} 位晉級決賽（依初賽出場序排列）</p><div class="list">${cur.list.map(x => `
+        <div class="item" style="cursor:default"><div class="num">${esc(x.order)}</div>
+          <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}</div></div><span class="chip gold">晉級</span></div>`).join('')}</div>
+          <p class="meta center" style="margin-top:14px">個人分數與評審評語，請至首頁「查詢我的成績」</p>`
+        : '<div class="card center">決賽名單尚未確定</div>');
+    } else {
+      body = cur.list.length ? `<div class="list">${cur.list.map(x => `
         <div class="item" style="cursor:default"><div class="rank ${x.rank <= 3 ? 'top' : ''}">${x.rank}</div>
-          <div class="grow"><div class="name">${esc(x.singers)} ${x.advanced ? '<span class="chip gold">晉級決賽</span>' : ''}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
-        : '<div class="card center">目前沒有名次資料</div>') + footer();
+          <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
+        : '<div class="card center">目前沒有名次資料</div>';
+    }
+    app.innerHTML = pageHead(title(cur)) + PV_BANNER() + tabs + body + footer();
     app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => renderRanks(b.dataset.s));
   } catch (err) { app.innerHTML = pageHead('名次公告') + `<div class="banner err">${esc(err.message)}</div>`; }
 }
@@ -421,7 +439,7 @@ function renderMe() {
   app.className = 'wrap';
   if (!anyPub('detail')) { app.innerHTML = pageHead('查詢我的成績') + '<div class="card center">評分細節尚未公布</div>'; return; }
   const saved = store('sing:email') || '';
-  app.innerHTML = pageHead('查詢我的成績') + `
+  app.innerHTML = pageHead('查詢我的成績') + PV_BANNER() + `
     <div class="card" id="ask">
       <form id="f">
         <label for="em" style="margin-top:0">補資料時填的 Email <span class="opt">合唱者用自己的 Email 也可以</span></label>
@@ -448,13 +466,18 @@ function renderMe() {
 }
 
 function resultCard(x, criteria, stage) {
+  const prelim = stage === '初賽';
+  const chip = !prelim || x.advanced == null ? '' : x.advanced ? ' <span class="chip ok">恭喜晉級決賽</span>' : ' <span class="chip">感謝參與</span>';
+  if (x.total === '') return `<div class="card"><span class="chip gold">${esc(stage)}</span>
+    <div class="name" style="font-size:20px;margin-top:8px;font-family:var(--serif)">${esc(x.singers)}</div>
+    <div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div><p class="meta">沒有這場的評分紀錄。</p></div>`;
   return `<div class="card">
-    <span class="chip gold">${esc(stage)}</span>
+    <span class="chip gold">${esc(stage)}</span>${chip}${x.provisional ? ' <span class="chip warn">預覽・名單未確認</span>' : ''}
     <div class="name" style="font-size:20px;margin-top:8px;font-family:var(--serif)">${esc(x.singers)}</div>
     <div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div>
     <div class="grid" style="margin:16px 0">
-      <div><div class="meta">名次</div><div class="stat">${x.rank === '' ? '—' : '第 ' + x.rank + ' 名'}</div></div>
-      <div><div class="meta">平均總分</div><div class="stat">${fmt(x.total)}</div></div>
+      ${prelim ? '' : `<div><div class="meta">名次</div><div class="stat">${x.rank === '' ? '—' : '第 ' + x.rank + ' 名'}</div></div>`}
+      <div><div class="meta">平均總分</div><div class="stat">${fmt(x.total)}</div>${x.judges ? `<div class="meta small">${x.judges} 位評審平均</div>` : ''}</div>
     </div>
     ${criteria.map(c => `<div class="kv"><span>${esc(c.name)}</span><span>${fmt(x.items[c.name])} / ${c.max}</span></div>`).join('')}
     <h2 style="margin-top:20px">評審評語</h2>
@@ -1022,7 +1045,7 @@ function switchConfirm(key, on) {
   if (SWITCH_TEXT[key]) return SWITCH_TEXT[key][on ? 0 : 1];
   const stage = key.slice(0, 2), what = key.includes('名次') ? '名次' : '評分細節';
   const lock = stage === A.data.stage ? '，同時會鎖定評分' : '';
-  return on ? `公布${stage}${what}？${what === '名次' ? '所有人都能在首頁看到名次列表' : '選手可以用 Email 查到自己的分數與評語'}${lock}。` : `取消公布${stage}${what}？`;
+  return on ? `公布${stage}${what}？${what === '名次' ? (stage === '初賽' ? '所有人都能在首頁看到決賽入圍名單（不含名次與分數），請先在「晉級決賽」分頁儲存名單' : '所有人都能在首頁看到名次列表') : '選手可以用 Email 查到自己的分數與評語'}${lock}。` : `取消公布${stage}${what}？`;
 }
 function bindSwitches(body) {
   body.querySelectorAll('[data-key]').forEach(b => b.onclick = () => {
@@ -1257,6 +1280,7 @@ function homeRoute() {
   if (params.get('admin')) return startAdmin(params.get('admin'));
   try {
     cfg = await api('config');
+    if (PREVIEW) cfg.published['初賽'] = { ranks: true, detail: true };
   } catch (err) {
     app.innerHTML = `<h1>${TITLE}</h1><div class="banner err">系統暫時無法連線：${esc(err.message)}</div>`;
     return;
