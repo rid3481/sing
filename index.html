@@ -450,8 +450,8 @@ function renderMe() {
   app.innerHTML = pageHead('查詢我的成績') + PV_BANNER() + `
     <div class="card" id="ask">
       <form id="f">
-        <label for="em" style="margin-top:0">補資料時填的 Email <span class="opt">合唱者用自己的 Email 也可以</span></label>
-        <input id="em" type="email" required autocomplete="email" placeholder="name@example.com" value="${esc(saved)}">
+        <label for="em" style="margin-top:0">Email 或本名 <span class="opt">有填過 Email 請用 Email；沒填過的請輸入報名時的本名</span></label>
+        <input id="em" type="text" required autocomplete="email" placeholder="name@example.com 或 王小明" value="${esc(saved)}">
         <button class="full" style="margin-top:14px" id="b">查詢</button>
       </form>
       <p class="msg" id="m"></p>
@@ -467,7 +467,7 @@ function renderMe() {
       store('sing:email', email);
       $('#ask').style.display = 'none';
       $('#out').innerHTML = r.stages.map(st => st.results.map(x => resultCard(x, r.criteria, st.stage)).join('')).join('')
-        + `<p class="center"><button class="link" id="again">查詢其他 Email</button></p>`;
+        + `<p class="center"><button class="link" id="again">查詢其他人</button></p>`;
       $('#again').onclick = renderMe;
     } catch (err) { setMsg(m, err.message, 'err'); b.disabled = false; }
   };
