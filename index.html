@@ -183,35 +183,13 @@ const params = new URLSearchParams(location.search);
 let cfg = null;
 // 主辦預覽：?preview=主辦代碼#ranks 或 #me，公布前先看畫面（用目前分數，晉級名單未確定時以前 N 名暫代）
 const PREVIEW = params.get('preview') || '';
-const PV_BANNER = () => DEMO ? '<div class="banner">示範畫面：以下姓名與分數都是假資料。</div>'
-  : PREVIEW ? '<div class="banner">主辦預覽模式：一般人還看不到這個畫面。</div>' : '';
-
-// ===== 示範模式（?demo=1）：不連後台，用假資料看畫面；確認後整段移除 =====
-const DEMO = params.has('demo');
-function demoData(action, payload) {
-  const sur = '王李張陳林黃吳劉蔡楊許鄭謝郭洪曾周廖', giv = ['小明', '美玲', '志豪', '雅婷', '建宏', '淑芬', '俊傑', '怡君', '家豪', '佩珊'];
-  const clubs = ['台北西區社', '中和圓通社', '台北長春社', '新店萃英社', '台北福盈社', '台北艋舺社', '台北台美社', '台北明志社'];
-  const orders = [];
-  for (let o = 1; orders.length < 40; o += 2) orders.push(o > 77 ? o - 77 : o);
-  if (action === 'ranks') return { stages: [{ stage: '初賽', kind: 'finalists', provisional: false,
-    list: orders.sort((a, b) => a - b).map((o, i) => ({ order: o, singers: sur[i % sur.length] + giv[i % giv.length], club: clubs[i % clubs.length] })) }] };
-  const out = /^no/i.test(payload.email || '');
-  const criteria = [{ name: '音準節拍／音色咬字', max: 40 }, { name: '演唱技巧感情', max: 40 }, { name: '服裝造型', max: 10 }, { name: '儀態台風', max: 10 }];
-  const items = out ? [30.5, 31, 7.67, 8] : [34.67, 35.17, 8.33, 8.33];
-  return { criteria, stages: [{ stage: '初賽', results: [{
-    singers: out ? '陳雅婷' : '王小明', club: '台北西區社', song: '示範曲目', judges: 3,
-    total: Math.round(items.reduce((a, b) => a + b) * 100) / 100, rank: '', advanced: !out, provisional: false,
-    items: Object.fromEntries(criteria.map((c, i) => [c.name, items[i]])),
-    comments: [{ judge: '評審 A', text: '音色溫暖，副歌高音再穩一點會更好。' }, { judge: '評審 B', text: '情感投入，咬字清楚。' }, { judge: '評審 C', text: '台風自然，可以多和觀眾互動。' }],
-  }] }] };
-}
+const PV_BANNER = () => PREVIEW ? '<div class="banner">主辦預覽模式：一般人還看不到這個畫面。</div>' : '';
 
 class NetError extends Error {}
 
 async function api(action, payload = {}) {
   let res;
   try {
-    if (DEMO && (action === 'ranks' || action === 'myResult')) return demoData(action, payload);
     if (PREVIEW && (action === 'ranks' || action === 'myResult')) payload = { ...payload, at: PREVIEW };
     res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
   } catch (e) {
@@ -1302,7 +1280,7 @@ function homeRoute() {
   if (params.get('admin')) return startAdmin(params.get('admin'));
   try {
     cfg = await api('config');
-    if (PREVIEW || DEMO) cfg.published['初賽'] = { ranks: true, detail: true };
+    if (PREVIEW) cfg.published['初賽'] = { ranks: true, detail: true };
   } catch (err) {
     app.innerHTML = `<h1>${TITLE}</h1><div class="banner err">系統暫時無法連線：${esc(err.message)}</div>`;
     return;
