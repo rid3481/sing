@@ -240,12 +240,12 @@ function renderHome() {
   const acts = [];
   if (cfg.finalsReady && cfg.profileOpen) acts.push(`<a class="btn gold" href="#final">決賽選手專區<small>填寫決賽曲目、上傳決賽音檔</small></a>`);
   if (cfg.regOpen) acts.push(`<a class="btn gold ${cfg.profileOpen ? '' : 'wide'}" href="#register">我要報名<small>新參賽者</small></a>`);
-  if (cfg.profileOpen) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
+  if (cfg.profileOpen && !cfg.finalsReady) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
   acts.push(`<a class="btn ghost" href="#lineup">初賽出場順序<small>確認序號與曲目</small></a>`);
   if (!PREVIEW && anyPub('ranks')) acts.push(cfg.published['決賽'] && cfg.published['決賽'].ranks
     ? `<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`
     : `<a class="btn ghost" href="#ranks">決賽入圍名單<small>不用登入</small></a>`);
-  if (!PREVIEW && anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
+  if (!PREVIEW && anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>總分與評語</small></a>`);
   // 決賽專區獨佔一列；其餘按鈕兩兩一列，落單的撐滿
   if (cfg.finalsReady && cfg.profileOpen) acts[0] = acts[0].replace('class="btn ', 'class="btn wide ');
   const rest = acts.length - (cfg.finalsReady && cfg.profileOpen ? 1 : 0);
@@ -487,7 +487,7 @@ function resultCard(x, criteria, stage) {
       ${prelim ? '' : `<div><div class="meta">名次</div><div class="stat">${x.rank === '' ? '—' : '第 ' + x.rank + ' 名'}</div></div>`}
       <div><div class="meta">平均總分</div><div class="stat">${fmt(x.total)}</div>${x.judges ? `<div class="meta small">${x.judges} 位評審平均</div>` : ''}</div>
     </div>
-    ${criteria.map(c => `<div class="kv"><span>${esc(c.name)}</span><span>${fmt(x.items[c.name])} / ${c.max}</span></div>`).join('')}
+    ${x.items ? criteria.map(c => `<div class="kv"><span>${esc(c.name)}</span><span>${fmt(x.items[c.name])} / ${c.max}</span></div>`).join('') : ''}
     <h2 style="margin-top:20px">評審評語</h2>
     ${x.comments.length ? x.comments.map(c => `<div class="kv" style="display:block"><div class="meta">${esc(c.judge)}</div><div style="white-space:pre-wrap">${esc(c.text)}</div></div>`).join('') : '<p class="meta">評審沒有留下評語</p>'}
   </div>`;
