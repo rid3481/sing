@@ -406,14 +406,15 @@ async function renderLineup() {
 
 async function renderRanks(pick) {
   app.className = 'wrap';
-  const title = s => s && s.kind === 'finalists' ? '決賽入圍名單' : '名次公告';
+  const title = s => !s ? '名次公告' : s.kind === 'finalists' ? '決賽入圍名單' : s.kind === 'fullranks' ? '完整名次' : '名次公告';
   app.innerHTML = pageHead('名次公告') + '<p class="sub">載入中…</p>';
   try {
     const r = await api('ranks');
     if (!r.stages.length) { app.innerHTML = pageHead('名次公告') + '<div class="card center">名次尚未公布</div>'; return; }
-    const cur = r.stages.find(s => s.stage === pick) || r.stages[0];
-    const tabs = r.stages.length > 1 ? `<div class="tabs">${r.stages.map(s =>
-      `<button class="${s === cur ? '' : 'ghost'}" data-s="${esc(s.stage)}">${esc(title(s))}</button>`).join('')}</div>` : '';
+    const cur = r.stages[Number(pick) || 0] || r.stages[0];
+    const tabs = r.stages.length > 1 ? `<div class="tabs">${r.stages.map((s, i) =>
+      `<button class="${s === cur ? '' : 'ghost'}" data-s="${i}">${esc(title(s))}</button>`).join('')}</div>` : '';
+    const refresh = PREVIEW ? `<p class="center" style="margin:0 0 8px"><button class="link" id="rf">重新整理（抓最新分數）</button></p>` : '';
     let body;
     if (cur.kind === 'finalists') {
       body = (cur.provisional ? '<div class="banner">晉級名單還沒在主辦頁確認，下面暫以目前名次前幾名顯示。</div>' : '')
@@ -422,14 +423,21 @@ async function renderRanks(pick) {
           <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}</div></div><span class="chip gold">晉級</span></div>`).join('')}</div>
           <p class="meta center" style="margin-top:14px">個人分數與評審評語，請至首頁「查詢我的成績」</p>`
         : '<div class="card center">決賽名單尚未確定</div>');
+    } else if (cur.kind === 'fullranks') {
+      body = cur.list.length ? `<p class="sub">只有主辦預覽看得到。共 ${cur.list.length} 位有成績</p><div class="list">${cur.list.map(x => `
+        <div class="item" style="cursor:default"><div class="rank ${x.advanced ? 'top' : ''}">${x.rank}</div>
+          <div class="grow"><div class="name">${esc(x.singers)} ${x.tie ? '<span class="chip err">同分</span>' : ''}</div><div class="meta">${esc(x.club)}・第 ${esc(x.order)} 號出場</div></div>
+          <div style="text-align:right"><div class="name">${fmt(x.total)}</div>${x.advanced ? '<span class="chip gold">晉級</span>' : ''}</div></div>`).join('')}</div>`
+        : '<div class="card center">還沒有成績</div>';
     } else {
       body = cur.list.length ? `<div class="list">${cur.list.map(x => `
         <div class="item" style="cursor:default"><div class="rank ${x.rank <= 3 ? 'top' : ''}">${x.rank}</div>
           <div class="grow"><div class="name">${esc(x.singers)}</div><div class="meta">${esc(x.club)}${x.song ? '・' + esc(x.song) : ''}</div></div></div>`).join('')}</div>`
         : '<div class="card center">目前沒有名次資料</div>';
     }
-    app.innerHTML = pageHead(title(cur)) + PV_BANNER() + tabs + body + footer();
+    app.innerHTML = pageHead(title(cur)) + PV_BANNER() + tabs + refresh + body + footer();
     app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => renderRanks(b.dataset.s));
+    if ($('#rf')) $('#rf').onclick = () => renderRanks(pick);
   } catch (err) { app.innerHTML = pageHead('名次公告') + `<div class="banner err">${esc(err.message)}</div>`; }
 }
 
