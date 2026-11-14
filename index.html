@@ -242,10 +242,10 @@ function renderHome() {
   if (cfg.regOpen) acts.push(`<a class="btn gold ${cfg.profileOpen ? '' : 'wide'}" href="#register">我要報名<small>新參賽者</small></a>`);
   if (cfg.profileOpen) acts.push(`<a class="btn ${cfg.regOpen ? '' : 'wide'}" href="#profile">補填／修改資料<small>已報名者</small></a>`);
   acts.push(`<a class="btn ghost" href="#lineup">初賽出場順序<small>確認序號與曲目</small></a>`);
-  if (anyPub('ranks')) acts.push(cfg.published['決賽'] && cfg.published['決賽'].ranks
+  if (!PREVIEW && anyPub('ranks')) acts.push(cfg.published['決賽'] && cfg.published['決賽'].ranks
     ? `<a class="btn ghost" href="#ranks">名次公告<small>不用登入</small></a>`
     : `<a class="btn ghost" href="#ranks">決賽入圍名單<small>不用登入</small></a>`);
-  if (anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
+  if (!PREVIEW && anyPub('detail')) acts.push(`<a class="btn ghost" href="#me">查詢我的成績<small>分數與評語</small></a>`);
   // 決賽專區獨佔一列；其餘按鈕兩兩一列，落單的撐滿
   if (cfg.finalsReady && cfg.profileOpen) acts[0] = acts[0].replace('class="btn ', 'class="btn wide ');
   const rest = acts.length - (cfg.finalsReady && cfg.profileOpen ? 1 : 0);
